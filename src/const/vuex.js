@@ -1,0 +1,41 @@
+export default {
+    getters: [
+        "isMenu",
+        "isStep",
+        "getData",
+        "passcode",
+        "repasscode",
+        "getSelectedBox",
+        "getTel",
+        "getBoxs",
+        "getTransactions",
+        "getFaceID",
+        "isOpen",
+        "updateTransactions",
+        "updateBoxs",
+        "passcodeAttemp",
+        "getPeripheral",
+        "startApp",
+        "openBox",
+        "phonenumber"
+      ],
+      setters: [
+        "setMenu",
+        "setStep",
+        "setData",
+        "setPasscode",
+        "setRepasscode",
+        "setBoxes",
+        "clearSelectedBox",
+        "updateBoxChange",
+        "setTransactions",
+        "setUpdateBoxs",
+        "setUpdateTransactions",
+        "setIsOpen",
+        "passcodeAttempInc",
+        "clearAttemp",
+        "setPeripheral",
+        "setBoxState",
+        "clearDetails"
+      ]
+}

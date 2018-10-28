@@ -5,12 +5,12 @@
 </template>
 
 <script>
-import MainPage from './components/MainPage'
+import MainPage from "./components/MainPage"
+
 export default {
   name: "app",
-  async beforeMount() {
-  },
-  components:{
+  async beforeMount() {},
+  components: {
     MainPage
   }
 };

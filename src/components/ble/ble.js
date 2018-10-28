@@ -21,5 +21,24 @@ export default {
             array[i] = string.charCodeAt(i);
         }
         return array.buffer;
-    }
+    },
+    bleConnect: function (id) {
+        return new Promise((resolve, reject) => {
+            ble.connect(id, (peripheral) => {
+                console.log("PERIPHERAL")
+                console.log(peripheral)
+                this.setPeripheral(peripheral);
+                return resolve(peripheral)
+            }),
+                (error) => {
+                    return reject(error)
+                };
+        })
+    },
+    openBox: function () {
+        this.turnONOFF(this.getPeripheral, "ON");
+    },
+    closeBox: function () {
+        this.turnONOFF(this.getPeripheral, "OFF");
+    },
 }

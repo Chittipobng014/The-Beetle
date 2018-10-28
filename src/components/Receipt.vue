@@ -28,7 +28,8 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
-import ble from "./ble/ble.js";
+import vuex from "../const/vuex"
+
 export default {
   name: "receipt",
   data() {
@@ -38,24 +39,18 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["getSelectedBox", "getPeripheral"])
+    ...mapGetters(vuex.getters)
   },
   mounted() {
     this.countdown();
   },
   methods: {
-    ...mapActions([
-      "setMenu",
-      "setStep",
-      "setData",
-      "clearDetails",
-      "setPeripheral"
-    ]),
+    ...mapActions(vuex.setters),
     countdown: function() {
       var timer = setInterval(() => {
         this.time -= 1;
         if (this.time == 0) {
-          this.openBox();
+          this.setBoxState("OPEN")
           this.showAlert();
           clearInterval(timer);
         }
@@ -64,18 +59,11 @@ export default {
     showAlert: async function() {
       this.alert = true;
       setTimeout(() => {
-        this.closeBox();
         this.setMenu("hello");
         this.setStep("0");
         this.clearDetails();
         this.alert = false;
-      }, 2000);
-    },
-    openBox: function() {
-      ble.turnONOFF(this.getPeripheral, "ON");
-    },
-    closeBox: function() {
-      ble.turnONOFF(this.getPeripheral, "OFF");
+      }, 3000);
     }
   }
 };

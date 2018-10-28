@@ -1,8 +1,8 @@
 <template>
     <div>
         <div class="center">
-            <div style="color: #3B5998; font-size: 72px">{{getSelectedBox.name}}</div>
-            <div style="font-size: 64px; margin-bottom: 25px">{{getSelectedBox.price}} Baht/hr</div>
+            <div style="color: #3B5998; font-size: 72px">{{getSelectedBox[0].name}}</div>
+            <div style="font-size: 64px; margin-bottom: 25px">{{getSelectedBox[0].price}} Baht/hr</div>
             <div style="font-size: 18px; color: #FF0000; margin-bottom: 35px">Input your to telephone number in case of forgot your box</div>
             <div style="margin-top: 25px; margin-bottom: 10px; margin-left: 20%"><v-text-field
                 label="Solo"
@@ -11,7 +11,7 @@
                 style="width: 95%; "
                 v-model="tel"
           ></v-text-field></div>
-            <div style="margin-bottom: 25px"><v-btn @click="this.rent()" style="width: 330px; height: 100px; background-color: #3B5998; color: #FFFFFF; font-size: 28px">Rent a box</v-btn></div>
+            <div style="margin-bottom: 25px"><v-btn @click="rent()" style="width: 330px; height: 100px; background-color: #3B5998; color: #FFFFFF; font-size: 28px">Rent a box</v-btn></div>
             <div><v-btn @click="this.goback" style="width: 330px; height: 100px; font-size: 28px">Back to box select</v-btn></div>
         </div>
     </div>
@@ -29,62 +29,27 @@ export default {
     };
   },
   mounted() {
-    console.log("RENT")
-    this.rent()
+    
   },
   methods: {
-    ...mapActions(["setMenu", "setStep", "setData", "clearSelectedBox", "setPeripheral"]),
-    //Function
-    bleConnect: function(id) {
-      return new Promise((resolve, reject) => {
-        ble.connect(id, (peripheral) => {
-          console.log("PERIPHERAL")
-          console.log(peripheral)
-          this.setPeripheral(peripheral);
-          return resolve(peripheral)
-        }),
-        (error) => {
-          return reject(error)
-        };
-      })
-    },
+    ...mapActions(["setMenu", "setStep", "setData", "clearSelectedBox", "setPeripheral", "setPhonenumber"]),
     rent: async function() {
-      
-      // if (this.tel.length != 0) {
-        try {
-        console.log(this.getSelectedBox.id);
-        var connect = await this.bleConnect(this.getSelectedBox.id);
+      if (this.tel.length > 0) {
+        this.setPhonenumber(this.tel)
         this.setMenu("faceReg");
         this.setStep("3");
-        } catch (error) {
-          console.log(error)
-        }    
-      // }
+      } else {
+        
+      }
     },
     goback: function() {
       this.clearSelectedBox();
       this.setMenu("list");
       this.setStep("1");
-    },
-    goto3: function() {
-      this.$router.push({
-        path: "/box/3"
-      });
-    },
-    next: function() {
-      if (this.tel.length >= 8) {
-        this.setMenu("faceReg");
-        this.setStep("3");
-      } else {
-        console.log("Tel min > 8");
-      }
     }
   },
   computed: {
     ...mapGetters(["isMenu", "isStep", "getData", "getSelectedBox"]),
-  },
-  watch: {
-    state: function(payload) {}
   }
 };
 </script>

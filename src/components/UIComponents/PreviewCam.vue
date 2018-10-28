@@ -236,13 +236,13 @@ export default {
     }
   },
   mounted() {
-    this.show();
-    this.startCameraAbove();
-    setTimeout(() => {
-      this.takePicture();
-    }, 3000);
-    // this.setMenu("passcode");
-    // this.setStep("4");
+    // this.show();
+    // this.startCameraAbove();
+    // setTimeout(() => {
+    //   this.takePicture();
+    // }, 3000);
+    this.setMenu("passcode");
+    this.setStep("4");
   }
 };
 </script>

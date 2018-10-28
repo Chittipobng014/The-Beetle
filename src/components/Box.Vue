@@ -1,6 +1,7 @@
 <template>
 <div>
-    <v-card flat tile class="h-center" style="text-align:center; margin: 0px;  height: 21vh;  background-color: #33c0ca">        
+    <v-card flat tile class="h-center" style="text-align:center; margin: 0px;  height: 21vh;  background-color: #33c0ca"> 
+      {{name}}      
         <v-btn @click="next()">click</v-btn>
     </v-card>
 </div>
@@ -28,6 +29,7 @@ export default {
 
     next: function() {
       let box = {id: this.id, name: this.name, price: this.price, status: "1"}
+      console.log(box)
       this.setSelectedBox(box)
       this.setMenu("renting");
       this.setStep("2");

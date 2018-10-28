@@ -97,7 +97,7 @@ export default {
         if (this.isMenu == "passcode" && this.isOpen == false) {
           //set state and send data to Controller
           this.setPasscode(this.passcode);
-          this.setMenu("setpasscode");
+          this.setMenu("repasscode");
           //clear slot
           setTimeout(() => {
             this.code = [];
@@ -125,8 +125,8 @@ export default {
       "isMenu",
       "isStep",
       "getData",
-      "getPasscode",
-      "getRepasscode",
+      "passcode",
+      "repasscode",
       "isOpen"
     ]),
     passcode: function() {

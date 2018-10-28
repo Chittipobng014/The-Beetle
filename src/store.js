@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import http from './components/API/common'
 
 Vue.use(Vuex)
 
@@ -10,30 +11,42 @@ export default new Vuex.Store({
     peripheral: null,
     faceID: null,
     tel: null,
-    boxs: [],
+    boxes: [],
     transactions: [],
     updateBoxs: false,
     updateTransactions: false,
-    passcodeAttemp: 0
+    passcodeAttemp: 0,
+    startApp: false,
+    phonenumber: '',
+    openBox: 'CLOSE'
   },
   getters: {
+    startApp: state => state.startApp,
     isMenu: state => state.status.menu,
     isStep: state => state.status.step,
     isOpen: state => state.status.isOpen,
     getData: state => state.status.data,
-    getPasscode: state => state.status.data.passcode,
-    getRepasscode: state => state.status.data.repasscode,
-    getSelectedBox: state => state.selectedBox[0],
+    passcode: state => state.status.data.passcode,
+    repasscode: state => state.status.data.repasscode,
+    getSelectedBox: state => state.selectedBox,
     getPeripheral: state => state.peripheral,
     getFaceID: state => state.faceID,
     getTel: state => state.tel,
-    getBoxs: state => state.boxs,
+    getBoxes: state => state.boxes,
     getTransactions: state => state.transactions,
     updateBoxs: state => state.updateBoxs,
     updateTransactions: state => state.updateTransactions,
-    passcodeAttemp: state => state.passcodeAttemp
+    passcodeAttemp: state => state.passcodeAttemp,
+    phonenumber: state => state.phonenumber,
+    openBox: state => state.openBox
   },
   mutations: {
+    SET_PHONENUMBER(state, payload){
+      state.phonenumber = payload
+    },
+    START_APP(state, payload){
+      state.startApp = payload
+    },
     CLEAR_ATTEMP(state){
       state.passcodeAttemp = 0;
     },
@@ -54,8 +67,8 @@ export default new Vuex.Store({
       state.tel = null;
       state.selectedBox = [];
     },
-    SET_BOXS(state, payload){
-      state.boxs = payload
+    SET_BOXES(state, payload){
+      state.boxes = payload
     },
     SET_TEL(state, payload){
       state.tel = payload;
@@ -101,6 +114,9 @@ export default new Vuex.Store({
     },
     SET_TRANSACTIONS(state, payload){
       state.transactions = payload;
+    },
+    CHANGE_BOX_STATE(state, payload){
+      state.openBox = payload
     }
   },
   actions: {
@@ -112,19 +128,32 @@ export default new Vuex.Store({
     setData: ({ commit }, payload) => commit("SET_DATA", payload),
     setPasscode: ({ commit }, payload) => commit("SET_PASSCODE", payload),
     setRepasscode: ({ commit }, payload) => commit("SET_REPASSCODE", payload),
-    setSelectedBox: ({ commit }, payload) => commit("ADDSELECTED_BOX", payload),
+    setSelectedBox: ({ commit }, payload) => {
+      commit("ADDSELECTED_BOX", payload)
+    },
     setPeripheral: ({ commit }, payload) => commit("SET_PERIPHERAL", payload),
     clearPeripheral: ({ commit }, payload) => commit("CLEAR_PERIPHERAL"),
     setFaceID: ({ commit }, payload) => commit("SET_FACEID", payload),
     setTel: ({ commit }, payload) => commit("SET_TEL", payload),
-    setBoxs: async ({ commit }, payload) => {
-        commit("SET_BOXS", payload);
+    setBoxes: async ({ commit }) => {
+      try {
+        const boxes = await http.getallboxes()
+        console.log(boxes)
+        commit("START_APP", true)
+        commit("SET_BOXES", boxes.data.boxes);
         console.log("BOX_FETCHED")
+      } catch (error) {
+        console.log(error)
+        commit("START_APP", false)
+      }
     },
     setIsOpen: ( {commit }, payload) => commit("SET_ISOPEN", payload),
     clearSelectedBox: ({commit }) => commit("CLEAR_SELECTEDBOX"),
     setTransactions: ({commit }, payload) => commit("SET_TRANSACTIONS", payload),
     passcodeAttempInc: ({ commit }) => commit("INCREASE_ATTEMP"),
-    clearAttemp: ({ commit }) => commit("CLEAR_ATTEMP")
+    clearAttemp: ({ commit }) => commit("CLEAR_ATTEMP"),
+    appStart: ({ commit }) => commit("START_APP", payload),
+    setPhonenumber: ({ commit }, payload) => commit("SET_PHONENUMBER", payload),
+    setBoxState: ({ commit }, payload) => commit("CHANGE_BOX_STATE", payload)
   }
 })

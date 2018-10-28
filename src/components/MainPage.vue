@@ -101,15 +101,17 @@
                     </v-card-text>
                 </v-card>
       </v-dialog>
+      <watcher></watcher>
     </v-app>
 </template>
 
 <script>
 import OutlineLabel from "./OutlineLabel";
 import { mapGetters, mapActions } from "vuex";
+import vuex from "../const/vuex"
 import { Menu, BoxList, BoxRenting, Receipt } from "./index.js";
 import { RentingStep, PreviewCam, PasscodePad } from "./UIComponents/index.js";
-import bleLb from "./ble/ble.js";
+import watcher from "./customizes/watcher";
 
 export default {
   name: "mainpage",
@@ -123,277 +125,38 @@ export default {
     passcode: PasscodePad,
     repasscode: PasscodePad,
     checkpasscode: PasscodePad,
-    receipt: Receipt
+    receipt: Receipt,
+    watcher
   },
   data() {
     return {
       dialog: false,
       boxs: [],
-      passcode: { passcode: "", repasscode: "" },
       alert: false
     };
   },
-  computed: {
-    ...mapGetters([
-      "isMenu",
-      "isStep",
-      "getData",
-      "getPasscode",
-      "getRepasscode",
-      "getSelectedBox",
-      "getTel",
-      "getBoxs",
-      "getTransactions",
-      "getFaceID",
-      "isOpen",
-      "updateTransactions",
-      "updateBoxs",
-      "passcodeAttemp",
-      "getPeripheral"
-    ]),
-    currentPage: function() {
-      var page = this.$route.path.split("/")[1];
-      return page;
-    },
-    state: function() {
-      var state = this.$stror.state;
-      return state;
+  watch: {
+    startApp: function(state) {
+      if (state == true) {
+        setTimeout(() => {
+          this.dialog = false;
+        }, 500);
+      }
     }
   },
-  watch: {
-    isMenu: async function(menu) {
-      if (menu == "setpasscode") {
-        // set passcode
-        if (this.getPasscode != "") {
-          this.passcode.passcode = this.getPasscode;
-          this.setMenu("repasscode");
-          this.setStep("5");
-        }
-      } else if (menu == "checkpasscode") {
-        //check passcode
-        if (this.getRepasscode != "") {
-          this.dialog = true;
-          this.passcode.repasscode == this.getRepasscode;
-          var result = this.checkPasscode(
-            this.passcode.passcode,
-            this.getRepasscode
-          );
-          if (result == true) {
-            // passcode match
-            this.setUpdateTransactions(true);
-            this.setUpdateBoxs(true);
-            setTimeout(() => {
-              this.dialog = false;
-              this.setMenu("receipt");
-              this.setStep("6");
-            }, 1000);
-
-          } else {
-            // passcode not match
-            setTimeout(() => {
-              console.log("not match");
-              this.setMenu("passcode");
-              this.setStep("4");
-              this.dialog = false;
-            }, 1000);
-          }
-        }
-      } else if(this.isMenu == "openByPasscode" && this.isOpen == true){
-        var passcode = this.getPasscode;
-        var transactionVadilate = this.checkTransactionPasscode(passcode);
-        if (transactionVadilate == true) {
-          this.alert = true;
-          this.setUpdateTransactions(true);
-          this.setUpdateBoxs(true);
-          setTimeout(() => {
-            this.setMenu("hello");
-            this.setIsOpen(false);
-            this.alert = false;
-          }, 2000)
-        } else {
-          this.setMenu("passcode");
-          this.passcodeAttempInc();
-        }
-      }
-    },
-    updateTransactions: async function(updated){
-      console.log(updated);
-      
-      if (updated == true && this.isOpen == false) {
-        var timestamp = Number(new Date());
-        var transaction = {
-          checkin: timestamp,
-          checkout: "",
-          cost: this.getSelectedBox.price,
-          faceid: this.getFaceID,
-          name: this.getSelectedBox.name,
-          password: this.getPasscode,
-          telnumber: "0983439189",
-          uuid: this.getSelectedBox.id
-        };
-        var oldTransactions = this.getTransactions;
-        this.updateTransaction(oldTransactions, transaction);
-      } else if(updated == true && this.isOpen == true){
-        var thisTransaction = this.getTransactions[0]
-        const connect = await this.bleConnect(thisTransaction.uuid);
-        this.openBox();
-        var deletedTransaction = this.getTransactions.filter( (transaction) => transaction.uuid != thisTransaction.uuid);
-        this.deleteTransaction(deletedTransaction);
-        this.setIsOpen(false);
-        setTimeout(() => { this.closeBox() },5000);
-      }
-    },
-    updateBoxs: async function(updated){
-      console.log(updated);
-
-      if(updated == true && this.isOpen == false){
-        var old = this.getBoxs;
-        var updated = this.getSelectedBox
-        this.updateBoxChange(old, updated);
-      } else if(updated == true && this.isOpen == true){
-        var thisTransaction = this.getTransactions[0];
-        var old = this.getBoxs;
-        var updated = {id: this.getTransactions[0].uuid, status:"0"}
-        this.updateBoxChange(old, updated);
-        setTimeout(() => { this.closeBox() },5000);
-      } else if(updated == true && this.isOpen == true && this.passcodeAttemp == 3){
-        var old = this.getBoxs;
-        var updated = {id: this.getTransactions[0].uuid, status:"3"}
-        this.updateBoxChange(old, updated);
-        this.clearAttemp()
-      }
-    },
-    passcodeAttemp: function(updated){
-      if (updated == 3) {
-        this.setMenu("hello");
-        this.setUpdateTransactions(true);
-        this.clearAttemp();
-      }
-    },
-    isOpen: function(updated){
-      console.log(updated)
-    }
+  computed: {
+    ...mapGetters(vuex.getters)
   },
   methods: {
-    ...mapActions([
-      "setMenu",
-      "setStep",
-      "setData",
-      "setPasscode",
-      "setRepasscode",
-      "setBoxs",
-      "clearSelectedBox",
-      "updateBoxChange",
-      "setTransactions",
-      "setUpdateBoxs",
-      "setUpdateTransactions",
-      "setIsOpen",
-      "passcodeAttempInc",
-      "clearAttemp",
-      "setPeripheral"
-    ]),
-    bleConnect: function(id) {
-      return new Promise((resolve, reject) => {
-        ble.connect(id, (peripheral) => {
-          console.log("PERIPHERAL")
-          console.log(peripheral)
-          this.setPeripheral(peripheral);
-          return resolve(peripheral)
-        }),
-        (error) => {
-          return reject(error)
-        };
-      })
-    },
-    openBox: function() {
-      bleLb.turnONOFF(this.getPeripheral, "ON");
-    },
-    closeBox: function() {
-      bleLb.turnONOFF(this.getPeripheral, "OFF");
-    },
-    checkPasscode: function(passcode, repasscode) {
-      if (passcode == repasscode) {
-        return true;
-      } else {
-        return false;
-      }
-    },
-    checkTransactionPasscode: function(passcode){
-      var passcode = passcode;
-      var transactionPasscode = this.getTransactions[0].password;
-      if (passcode == transactionPasscode) {
-        return true;
-      } else {
-        return false;
-      }
-    },
-    updateBoxChange: async function(payload1, payload2) {
-      let oldBoxs = payload1;
-      var updatedBox = payload2;
-      var index = oldBoxs.map(function(element) { return element.uuid; }).indexOf(updatedBox.id);
-      oldBoxs[index].status = updatedBox.status
-      var boxs = this.getBoxs;
-      this.setBoxs(oldBoxs);
-      try {
-        var boxsRef = await this.$db.collection("boxs").doc("email").update({boxs})
-        this.setUpdateBoxs(false);
-        this.setUpdateTransactions(true);
-      } catch (error) {
-        console.log(error)
-      }
-    },
-    updateTransaction: async function(payload1, payload2) {
-      try {
-        let oldTransactions = payload1;
-        if (oldTransactions.length == 0) {
-          oldTransactions.push(payload2)
-          this.setTransactions(oldTransactions);
-          var transactions = this.getTransactions;
-          var transactionsRef = await this.$db.collection("transactions").doc("email").set({transactions: oldTransactions})
-          this.setUpdateTransactions(false);
-        } else {
-          var updatedTransaction = payload2;
-          var index = oldTransactions.map(function(element) { return element.uuid; }).indexOf(updatedTransaction.uuid);
-          if (index != -1) {
-            oldTransactions[index] = updatedTransaction
-          }
-          this.setTransactions(oldTransactions);
-          var transactions = this.getTransactions;
-          var transactionsRef = await this.$db.collection("transactions").doc("email").set({transactions: oldTransactions})
-          this.setUpdateTransactions(false);
-        }
-      } catch (error) {
-        console.log("error")
-        console.log(error)
-      }
-    },
-    deleteTransaction: async function(payload){
-      var newTransactions = payload;
-      var transactionsRef = await this.$db.collection("transactions").doc("email").set({transactions: newTransactions})
-      this.setIsOpen(false);
-      this.setUpdateTransactions(false);
-    }
+    ...mapActions(vuex.setters)
   },
   async beforeMount() {
-    this.dialog = true;
     try {
-      // const x = await this.$db.collection("place").doc("Patong").collection("boxs").get()
-      // var s = [];
-      // x.forEach(element => { s.push(element.data()) });
-      //console.log(s)
-      const boxlist = await this.$db.collection("boxs").doc("email").get();
-      var allbox = boxlist.data().boxs;
-      const transactions = await this.$db.collection("transactions").doc("email").get();
-      var allTransaction = transactions.data().transactions
-      this.setTransactions(allTransaction);
-      this.setBoxs(allbox);
+      this.dialog = true;
+      this.setBoxes();
     } catch (error) {
       console.log(error);
     }
-    
-    setTimeout(() => {
-      this.dialog = false;
-    }, 200);
   }
 };
 </script>
