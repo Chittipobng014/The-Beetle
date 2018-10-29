@@ -36,6 +36,7 @@ export default {
         "clearAttemp",
         "setPeripheral",
         "setBoxState",
-        "clearDetails"
+        "clearDetails",
+        "clearPeripheral"
       ]
 }

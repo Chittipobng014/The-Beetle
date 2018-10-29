@@ -59,6 +59,8 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import ble from '../ble/ble'
+import vuex from '../../const/vuex'
 
 export default {
   name: "faceReg",
@@ -71,7 +73,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["setMenu", "setStep", "setData", "setFaceID", "setIsOpen", "setUpdateBoxs", "setUpdateTransactions"]),
+    ...mapActions(vuex.setters),
     startCameraAbove: function() {
       CameraPreview.startCamera({
         x: 50,
@@ -131,30 +133,44 @@ export default {
           const face = await this.axios(facedetect);
           var faceId = face.data[0].faceId;
           if (this.isOpen == true) {
-            let faceId1 = this.getTransactions[0].faceid;
-            let faceId2 = faceId;
+            let facesid = await this.axios.post('https://beetle-backend.herokuapp.com/api/getinusefaceid', {branchid: 1})
+            let facesRes = facesid.data.facesid
+            let faces = []
+            facesRes.forEach(e => {
+              faces.push(e.faceid)
+            })
+            faces.push(faceId)
             var faceVerify = {
               url:
-                "https://southeastasia.api.cognitive.microsoft.com/face/v1.0/verify",
+                "https://southeastasia.api.cognitive.microsoft.com/face/v1.0/group",
               method: "POST",
               headers: {
                 "Ocp-Apim-Subscription-Key": "863c391b338e49e7995d2fdeb9a4477c"
               },
               data: {
-                faceId1: faceId1,
-                faceId2: faceId2
+                faceIds: faces
               }
             };
-
             try {
               const verify = await this.axios(faceVerify);
-              if (verify.data.isIdentical == true) {
+              if (verify.data.groups[0].length == 2) {
+                let faceIdOfBox = verify.data.groups[0].filter(e => {
+                  return e != faceId
+                })
+                let boxIdFromFaceId = facesRes.filter(e => {
+                  return e.faceid == faceIdOfBox
+                })
+                let boxid = boxIdFromFaceId[0].boxid
+                const peripheral = await ble.bleConnect(boxid)
+                this.setPeripheral(peripheral)
+                this.setBoxState("OPEN")
                 this.setUpdateBoxs(true);
                 this.loading = false;
                 this.hide();
                 this.alert = true;
                 setTimeout( () => {
-                  //this.alert = false;
+                  this.isOpen = false
+                  this.alert = false;
                   this.setMenu("hello");
                 }, 2000)
               } else {
@@ -226,7 +242,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["isMenu", "isStep", "getData", "isOpen", "getTransactions"])
+    ...mapGetters(vuex.getters)
   },
   watch:{
     isOpen: function(updated){
@@ -236,13 +252,13 @@ export default {
     }
   },
   mounted() {
-    // this.show();
-    // this.startCameraAbove();
-    // setTimeout(() => {
-    //   this.takePicture();
-    // }, 3000);
-    this.setMenu("passcode");
-    this.setStep("4");
+    this.show();
+    this.startCameraAbove();
+    setTimeout(() => {
+      this.takePicture();
+    }, 3000);
+    // this.setMenu("passcode");
+    // this.setStep("4");
   }
 };
 </script>

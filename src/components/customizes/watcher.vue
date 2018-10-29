@@ -60,7 +60,8 @@ export default {
         }
       } else if (menu == "renting") {
         try {
-          const connect = await ble.bleConnect(getters.getSelectedBox.id);
+          const connect = await ble.bleConnect(this.getSelectedBox[0].id);
+          this.setPeripheral(connect);
         } catch (error) {
           console.log(error);
         }
@@ -74,7 +75,8 @@ export default {
         }
         try {
           const renting = await http.renting(rentingTransaction)
-          console.log(renting)
+          console.log(renting.data)
+          this.setBoxState("OPEN")
         } catch (error) {
           console.log(error)
         }
@@ -102,11 +104,13 @@ export default {
     openBox: function(state) {
       if (state == "OPEN") {
         console.log("BOX OPENED")
-        ble.openBox()
+        ble.openBox(this.getPeripheral)
         setTimeout(() => {
           console.log("BOX CLOESE")
-          ble.closeBox()
+          ble.closeBox(this.getPeripheral)
           this.setBoxState("CLOSE")
+          this.clearDetails()
+          this.clearPeripheral()
         }, 5000)
       }
     }

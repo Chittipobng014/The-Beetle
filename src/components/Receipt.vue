@@ -34,7 +34,7 @@ export default {
   name: "receipt",
   data() {
     return {
-      time: 3,
+      time: 5,
       alert: false
     };
   },
@@ -50,7 +50,6 @@ export default {
       var timer = setInterval(() => {
         this.time -= 1;
         if (this.time == 0) {
-          this.setBoxState("OPEN")
           this.showAlert();
           clearInterval(timer);
         }
@@ -61,7 +60,6 @@ export default {
       setTimeout(() => {
         this.setMenu("hello");
         this.setStep("0");
-        this.clearDetails();
         this.alert = false;
       }, 3000);
     }

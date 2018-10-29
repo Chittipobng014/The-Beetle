@@ -21,12 +21,12 @@ export default {
         "setIsOpen"
     ]),
     nextTolist: function() {
-      this.setMenu("list");
-      this.setStep("1");
+      this.setMenu("list")
+      this.setStep("1")
     },
     nextToOpen: function() {
       this.setIsOpen(true)
-      this.setMenu("faceReg");
+      this.setMenu("faceReg")
     }
   }
 };

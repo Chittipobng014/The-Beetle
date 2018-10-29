@@ -8,9 +8,9 @@ export default {
                     array[i] = cmd.charCodeAt(i);
                 }
                 ble.write(peripheral.id, element.service, element.characteristic, array.buffer, function () {
-                    console.log('k');
+                    console.log('Success');
                 }, function () {
-                    console.log('f');
+                    console.log('Fail');
                 });
             }
         }
@@ -25,9 +25,7 @@ export default {
     bleConnect: function (id) {
         return new Promise((resolve, reject) => {
             ble.connect(id, (peripheral) => {
-                console.log("PERIPHERAL")
-                console.log(peripheral)
-                this.setPeripheral(peripheral);
+                console.log("Connected")
                 return resolve(peripheral)
             }),
                 (error) => {
@@ -35,10 +33,10 @@ export default {
                 };
         })
     },
-    openBox: function () {
-        this.turnONOFF(this.getPeripheral, "ON");
+    openBox: function (peripheral) {
+        this.turnONOFF(peripheral, "ON");
     },
-    closeBox: function () {
-        this.turnONOFF(this.getPeripheral, "OFF");
+    closeBox: function (peripheral) {
+        this.turnONOFF(peripheral, "OFF");
     },
 }
