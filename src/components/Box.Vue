@@ -1,10 +1,9 @@
 <template>
-<div>
-    <v-card flat tile class="h-center" style="text-align:center; margin: 0px;  height: 21vh;  background-color: #33c0ca"> 
-      {{name}}      
-        <v-btn @click="next()">click</v-btn>
-    </v-card>
-</div>
+  <div class="aviableBox" @click="next()">
+    <div class="bottomRight textSize">
+      {{boxNo}}
+    </div>
+  </div>
 </template>
 
 <script>
@@ -33,13 +32,39 @@ export default {
       this.setSelectedBox(box)
       this.setMenu("renting");
       this.setStep("2");
-
     }
   },
   mounted() {},
 
   computed: {
-    ...mapGetters(["isMenu", "isStep", "data"])
+    ...mapGetters(["isMenu", "isStep", "data"]),
+    boxNo: function(){
+      let number = this.name.split(".")[1]
+      return number
+    }
   }
 };
 </script>
+
+<style scoped>
+.aviableBox{
+  height: 21vh;  
+  background-color: #33c0ca;
+  border: white 3px solid;
+  position: relative;
+}
+
+.bottomRight{
+  right: 0;
+  bottom: 0;
+  position: absolute;
+}
+
+.textSize{
+  display: inline-block;
+  color: white;
+  font-size: 950%;
+  line-height: 69%;
+}
+</style>
+

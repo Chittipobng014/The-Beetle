@@ -16,7 +16,7 @@ export default new Vuex.Store({
     updateBoxs: false,
     updateTransactions: false,
     passcodeAttemp: 0,
-    startApp: false,
+    startApp: null,
     phonenumber: '',
     openBox: 'CLOSE'
   },
@@ -137,11 +137,10 @@ export default new Vuex.Store({
     setTel: ({ commit }, payload) => commit("SET_TEL", payload),
     setBoxes: async ({ commit }) => {
       try {
+        commit("START_APP", false)
         const boxes = await http.getallboxes()
-        console.log(boxes)
         commit("START_APP", true)
         commit("SET_BOXES", boxes.data.boxes);
-        console.log("BOX_FETCHED")
       } catch (error) {
         console.log(error)
         commit("START_APP", false)

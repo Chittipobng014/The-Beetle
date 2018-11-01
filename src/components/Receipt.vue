@@ -34,7 +34,7 @@ export default {
   name: "receipt",
   data() {
     return {
-      time: 5,
+      time: 3,
       alert: false
     };
   },
@@ -50,6 +50,7 @@ export default {
       var timer = setInterval(() => {
         this.time -= 1;
         if (this.time == 0) {
+          this.setBoxState("OPEN")
           this.showAlert();
           clearInterval(timer);
         }

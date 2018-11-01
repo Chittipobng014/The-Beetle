@@ -18,7 +18,8 @@ export default {
     ...mapActions([
         "setMenu",
         "setStep",
-        "setIsOpen"
+        "setIsOpen",
+        "setBoxes"
     ]),
     nextTolist: function() {
       this.setMenu("list")
@@ -28,7 +29,10 @@ export default {
       this.setIsOpen(true)
       this.setMenu("faceReg")
     }
-  }
+  },
+  beforeMount() {
+    this.setBoxes();
+  },
 };
 </script>
 

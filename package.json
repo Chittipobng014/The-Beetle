@@ -10,7 +10,7 @@
     "build:watch": "cross-env WEBPACK_WATCH=true node build/build.js",
     "browser": "node build/build.js && cordova run browser",
     "android": "node build/build.js && cordova run android",
-    "ios": "node build/build.js && cordova build ios"
+    "ios": "node build/build.js && cordova build ios --buildFlag='-UseModernBuildSystem=0'"
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -23,7 +23,6 @@
     "cordova-plugin-ios-longpress-fix": "^1.1.0",
     "cordova-plugin-whitelist": "^1.3.3",
     "firebase": "5.5.3",
-    "onsenui": "^2.9.1",
     "vue": "^2.5.0",
     "vue-axios": "^2.1.3",
     "vue-firestore": "^0.2.9",

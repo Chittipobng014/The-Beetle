@@ -61,12 +61,12 @@
 import { mapActions, mapGetters } from "vuex";
 import ble from '../ble/ble'
 import vuex from '../../const/vuex'
+import { Promise, resolve, reject } from 'q';
 
 export default {
   name: "faceReg",
   data() {
     return {
-      faceid: "",
       alert: false,
       loading: false,
       facefail: false
@@ -74,6 +74,113 @@ export default {
   },
   methods: {
     ...mapActions(vuex.setters),
+    uploadPhoto: async function(imageURI) {
+      return new Promise(async () => {
+        try {
+          var base64str = imageURI.toString();
+          var binary = atob(base64str.replace(/\s/g, ""));
+          var len = binary.length;
+          var buffer = new ArrayBuffer(len);
+          var view = new Uint8Array(buffer);
+          for (var i = 0; i < len; i++) {
+            view[i] = binary.charCodeAt(i);
+          }
+          var blob = new Blob([view], { type: "image/jpeg" });
+          var timestamp = Number(new Date());
+          var photoRef = this.$storage.child("photos/" + timestamp + ".jpeg");
+          const upload = await photoRef.put(blob);
+          const photoUrl = await photoRef.getDownloadURL();
+          resolve(photoUrl)
+        } catch (error) {
+          reject(error)
+          console.log(error)
+        }
+      })
+    },
+    openWithFace: async function(faceID) {
+      try {
+        let facesid = await this.axios.post('https://beetle-backend.herokuapp.com/api/getinusefaceid', {branchid: 1})
+        let facesRes = facesid.data.facesid
+        let faces = []
+        facesRes.forEach(e => {
+          faces.push(e.faceid)
+        })
+        faces.push(faceID)
+        var faceVerify = {
+          url: "https://southeastasia.api.cognitive.microsoft.com/face/v1.0/group",
+          method: "POST",
+          headers: {
+            "Ocp-Apim-Subscription-Key": "863c391b338e49e7995d2fdeb9a4477c"
+          },
+          data: {
+            faceIds: faces
+          }
+        }
+        const verify = await this.axios(faceVerify);
+        if (verify.data.groups[0].length < 2) {
+          this.facefail = true;
+          setTimeout(() => {
+            this.facefail = false;
+            this.setMenu("passcode");
+          }, 3000)
+        } else if (verify.data.groups[0].length == 2) {
+          const faceIdOfBox = verify.data.groups[0].filter(e => {
+            return e != faceId
+          })
+          const boxIdFromFaceId = facesRes.filter(e => {
+            return e.faceid == faceIdOfBox
+          })
+          const boxid = boxIdFromFaceId[0].boxid
+          const transactionid = boxIdFromFaceId[0].id
+          const peripheral = await ble.bleConnect(boxid)
+          this.setPeripheral(peripheral)
+          this.setBoxState("OPEN")
+          this.setUpdateBoxs(true);
+          this.loading = false;
+          this.hide();
+          this.alert = true;
+          const checkout = await this.axios.post('https://beetle-backend.herokuapp.com/api/checkout', {transactionid, boxid})
+          setTimeout( () => {
+            this.isOpen = false
+            this.alert = false;
+            this.setMenu("hello");
+          }, 2000)
+        } else if (verify.data.groups[0].length > 2) {
+          //go select box
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    getFaceID: async function(photoUrl) {
+      return new Promise(async () => {
+        try {
+          var facedetect = {
+            url:
+              "https://southeastasia.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false",
+            data: {
+              url: photoUrl
+            },
+            method: "POST",
+            headers: {
+              "Ocp-Apim-Subscription-Key": "863c391b338e49e7995d2fdeb9a4477c"
+            }
+          };
+          const face = await this.axios(facedetect);
+          var faceId = face.data[0].faceId;
+          resolve(faceId)
+        } catch (error) {
+          reject(error)
+          console.log(error)
+        }
+      })
+    },
+    setFaceID: async function(faceID) {
+      this.loading = false;
+      this.setFaceID(faceID);
+      this.setMenu("passcode");
+      this.setStep("4");
+    },
     startCameraAbove: function() {
       CameraPreview.startCamera({
         x: 50,
@@ -102,101 +209,23 @@ export default {
     },
     takePicture: function() {
       CameraPreview.takePicture(async imageURI => {
+        try {
         this.hide();
         this.loading = true;
-        try {
-          var base64str = imageURI.toString();
-          var binary = atob(base64str.replace(/\s/g, ""));
-          var len = binary.length;
-          var buffer = new ArrayBuffer(len);
-          var view = new Uint8Array(buffer);
-          for (var i = 0; i < len; i++) {
-            view[i] = binary.charCodeAt(i);
-          }
-          var blob = new Blob([view], { type: "image/jpeg" });
-          var timestamp = Number(new Date());
-          var photoRef = this.$storage.child("photos/" + timestamp + ".jpeg");
-          const upload = await photoRef.put(blob);
-          const photoUrl = await photoRef.getDownloadURL();
-          var facedetect = {
-            url:
-              "https://southeastasia.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false",
-            data: {
-              url: photoUrl
-            },
-            method: "POST",
-            headers: {
-              "Ocp-Apim-Subscription-Key": "863c391b338e49e7995d2fdeb9a4477c"
-            }
-          };
-
-          const face = await this.axios(facedetect);
-          var faceId = face.data[0].faceId;
-          if (this.isOpen == true) {
-            let facesid = await this.axios.post('https://beetle-backend.herokuapp.com/api/getinusefaceid', {branchid: 1})
-            let facesRes = facesid.data.facesid
-            let faces = []
-            facesRes.forEach(e => {
-              faces.push(e.faceid)
-            })
-            faces.push(faceId)
-            var faceVerify = {
-              url:
-                "https://southeastasia.api.cognitive.microsoft.com/face/v1.0/group",
-              method: "POST",
-              headers: {
-                "Ocp-Apim-Subscription-Key": "863c391b338e49e7995d2fdeb9a4477c"
-              },
-              data: {
-                faceIds: faces
-              }
-            };
-            try {
-              const verify = await this.axios(faceVerify);
-              if (verify.data.groups[0].length == 2) {
-                let faceIdOfBox = verify.data.groups[0].filter(e => {
-                  return e != faceId
-                })
-                let boxIdFromFaceId = facesRes.filter(e => {
-                  return e.faceid == faceIdOfBox
-                })
-                let boxid = boxIdFromFaceId[0].boxid
-                const peripheral = await ble.bleConnect(boxid)
-                this.setPeripheral(peripheral)
-                this.setBoxState("OPEN")
-                this.setUpdateBoxs(true);
-                this.loading = false;
-                this.hide();
-                this.alert = true;
-                setTimeout( () => {
-                  this.isOpen = false
-                  this.alert = false;
-                  this.setMenu("hello");
-                }, 2000)
-              } else {
-                this.facefail = true;
-                setTimeout(() => {
-                  this.facefail = false;
-                  this.setMenu("passcode");
-                }, 3000)
-              }
-            } catch (error) {
-              console.log(error)
-            }
-          } else {
-            if (faceId != null) {
-              this.loading = false;
-              this.setFaceID(faceId);
-              this.setMenu("passcode");
-              this.setStep("4");
-            } else {
+        const photoUrl = await uploadPhoto(imageURI);
+        const faceID = await this.getFaceID(photoUrl) 
+        if (this.isOpen == true) {
+          this.openWithFace(faceID)
+        } else {
+          if (faceID == null) {
               // show alert message and instruction
               // retake picture
-            }
+          } else {
+            this.setFaceID(faceID)
           }
+        }  
         } catch (error) {
-          console.log("ERROR");
-          console.log(error);
+          console.log(error)
         }
       });
     },

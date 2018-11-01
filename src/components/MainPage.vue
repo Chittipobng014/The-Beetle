@@ -101,7 +101,6 @@
                     </v-card-text>
                 </v-card>
       </v-dialog>
-      <watcher></watcher>
     </v-app>
 </template>
 
@@ -111,7 +110,6 @@ import { mapGetters, mapActions } from "vuex";
 import vuex from "../const/vuex"
 import { Menu, BoxList, BoxRenting, Receipt } from "./index.js";
 import { RentingStep, PreviewCam, PasscodePad } from "./UIComponents/index.js";
-import watcher from "./customizes/watcher";
 
 export default {
   name: "mainpage",
@@ -126,7 +124,6 @@ export default {
     repasscode: PasscodePad,
     checkpasscode: PasscodePad,
     receipt: Receipt,
-    watcher
   },
   data() {
     return {
@@ -141,6 +138,8 @@ export default {
         setTimeout(() => {
           this.dialog = false;
         }, 500);
+      } else if (state == false) {
+        this.dialog = true;
       }
     }
   },
@@ -149,14 +148,6 @@ export default {
   },
   methods: {
     ...mapActions(vuex.setters)
-  },
-  async beforeMount() {
-    try {
-      this.dialog = true;
-      this.setBoxes();
-    } catch (error) {
-      console.log(error);
-    }
   }
 };
 </script>
