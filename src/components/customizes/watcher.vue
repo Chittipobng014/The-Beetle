@@ -90,7 +90,7 @@ export default {
         this.clearPeripheral()
       }, 5000)
     },
-    lockBox: function() {
+    lockBox: function() { 
       this.setMenu("hello");
       this.setUpdateTransactions(true);
       this.clearAttemp();
@@ -107,15 +107,6 @@ export default {
         this.connectToBox()
       } else if (menu == "receipt") {
         this.renting()
-      }
-    },
-    updateBoxs: async function(updated) {
-      if (updated == true && this.isOpen == false) {
-
-      } else if (updated == true && this.isOpen == true) {
-
-      } else if (updated == true && this.isOpen == true && this.passcodeAttemp == 3) {
-        
       }
     },
     passcodeAttemp: async function(updated) {

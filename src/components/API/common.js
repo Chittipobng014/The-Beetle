@@ -15,12 +15,19 @@ export default {
         return boxes
     },
     deletetransaction: async (transactionid) => {
-        const id = transactionid
-        const checkout = await axios.post(ConfigVars.API_URL + 'checkout', { transactionid: id })
+        const checkout = await axios.put(ConfigVars.API_URL + 'checkout/' + transactionid)
         return checkout
     },
     renting: async (obj) => {
-        const renting = await axios.post(ConfigVars.API_URL() + 'renting', obj)
+        const renting = await axios.post(ConfigVars.API_URL() + 'transactions', obj)
         return renting
+    },
+    checkout: async transactionid => {
+        const checkout = await axios.post('https://beetle-backend.herokuapp.com/api/checkout', {transactionid, boxid})
+        return checkout
+    },
+    getFaceid: async branchid => {
+        const faceid = await axios.post('https://beetle-backend.herokuapp.com/api/transactions/' + branchid)
+        return faceid
     }
 }
