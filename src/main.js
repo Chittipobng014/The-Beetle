@@ -25,6 +25,17 @@ const app = new Vue({
   components: { App },
   methods: {
     bleScan: function () {
+      ble.startScan([], async function (device) {
+      
+      }, function (err) {
+        console.log(err);
+      });
+      setTimeout(function () {
+        ble.stopScan(
+          function () { console.log("Scan complete"); },
+          function () { console.log("stopScan failed"); }
+        );
+      }, 5000);
       StatusBar.hide()
       setInterval(function () {
         ble.startScan([], async function (device) {
@@ -43,7 +54,7 @@ const app = new Vue({
           //   }, 6000);
           // }
         }, function (err) {
-          //console.log(err);
+          console.log(err);
         });
         setTimeout(function () {
           ble.stopScan(

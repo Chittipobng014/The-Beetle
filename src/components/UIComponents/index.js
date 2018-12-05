@@ -2,7 +2,7 @@ import RentingStep from './RentingStep';
 import PreviewCam from './PreviewCam';
 import PasscodePad from './PasscodePad';
 
-export{
+export {
     RentingStep,
     PreviewCam,
     PasscodePad

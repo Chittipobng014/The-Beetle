@@ -15,7 +15,6 @@ export default {
     ...mapActions(vuex.setters),
     checkPasscode: async function() {
       //check passcode
-      console.log(`passcode: ${this.passcode} and Re: ${this.repasscode}`);
       if (this.repasscode != "" && this.passcode != "") {
         this.dialog = true;
         if (this.repasscode == this.passcode) {
@@ -75,7 +74,6 @@ export default {
       };
       try {
         const renting = await http.renting(rentingTransaction);
-        console.log(renting.data);
       } catch (error) {
         console.log(error);
       }
@@ -91,10 +89,8 @@ export default {
     tempOpenBox: async function() {
       try {
         let open = await ble.openBox(this.getPeripheral);
-        console.log(`temp open ${open}`);
         setTimeout(async () => {
           let close = await ble.closeBox(this.getPeripheral);
-          console.log(`temp close ${close}`);
           this.setBoxState("CLOSE");
         }, 5000);
       } catch (error) {}
@@ -127,23 +123,16 @@ export default {
         this.lockBox();
       }
     },
-    isOpen: async function(isopen) {
-      console.log("​isopen", isopen);
-    },
     openBox: async function(state) {
-			console.log("​state", state)
       if (state == "OPEN") {
         this.tempOpenBox();
       } else if (state == "CLOSE") {
-        console.log('disconnecting')
         await ble.bleDisconnect(this.getSelectedBox[0].id);
-        console.log("​disconnected");
         this.clearDetails();
         this.clearPeripheral();
       }
     },
     openByPasscode: function(passcode) {
-      console.log("​passcode", passcode);
     }
   }
 };

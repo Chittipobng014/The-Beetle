@@ -1,130 +1,98 @@
 <template>
-    <v-app class="fullscreen fontcolor">
-        <v-layout row wrap class="background-img"> 
-            <v-flex xs4 style="padding: 0px; padding-top: 0px; padding-left: 0px;  border-shadow: 0px">
-                <div style="max-height: 100vh;  min-height: 100vh;   border: 0px" id="scroll-target">
-                    <v-card class="sidebar">  
-                        <div class="sidebarheader">
-                            <div style="margin-top: 4%">
-                                <img class="sidebar-logo" src="../assets/Logo/logo.png">
-                            </div>
-                            <div class="sidebar-text">
-                                SMART MOBILE LOCKER
-                            </div>
-                        </div>
-                        <div class="sidebartitle center">Instruction</div>
-                        <div class="content-container">
-                            <div class="sidebarcontent sidebarcontentText">
-                              <transition name="slide-y-transition">
-                                <div v-if="isMenu == 'hello'" >
-                                  <div class="inActive">1. Select Menu</div>
-                                </div>
-                              </transition>
-                              <transition name="fade">  
-                                <div v-if="isMenu == 'list' || isMenu == 'renting' || isMenu == 'faceReg' || isMenu == 'passcode' || isMenu == 'repasscode' || isMenu == 'receipt' || isMenu == 'checkpasscode'" ref="boxview" >
-                                  <renting-step></renting-step>
-                                </div>             
-                              </transition>                                             
-                            </div>
-                        </div>                            
-                    </v-card>
-                </div>
+  <v-app class="fullscreen fontcolor">
+    <v-layout row wrap class="background-img">
+      <v-flex xs4 style="padding: 0px; padding-top: 0px; padding-left: 0px;  border-shadow: 0px">
+        <div style="max-height: 100vh;  min-height: 100vh;   border: 0px" id="scroll-target">
+          <sidebar>
+            <transition name="slide-y-transition">
+              <div v-if="isMenu == 'hello'">
+                <div class="inActive">1. Select Menu</div>
+              </div>
+            </transition>
+            <transition name="fade">
+              <div
+                v-if="isMenu == 'list' || isMenu == 'renting' || isMenu == 'faceReg' || isMenu == 'passcode' || isMenu == 'repasscode' || isMenu == 'receipt' || isMenu == 'checkpasscode'"
+                ref="boxview"
+              >
+                <renting-step></renting-step>
+              </div>
+            </transition>
+          </sidebar>
+        </div>
+      </v-flex>
+      <v-flex xs8 style="padding: 0px;   padding-left: 0px;  padding-top: 0px">
+        <div class="navbar">
+          <v-layout row wrap>
+            <v-flex xs2>
+              <div style="min-height: 14vh; max-height: 14vh;" class="h-center">
+                <img src="../assets/beetle.png" alt class="navBeetle">
+              </div>
             </v-flex>
-            <v-flex xs8 style="padding: 0px;   padding-left: 0px;  padding-top: 0px">
-                <div class="navbar">
-                  <v-layout row wrap>
-                    <v-flex xs2>
-                      <div style="min-height: 14vh; max-height: 14vh;" class="h-center">
-                        <img src="../assets/beetle.png" alt="" class="navBeetle">
-                      </div>
-                    </v-flex>
-                    <v-flex xs10>
-                      <div class="h-center" style="min-height: 14vh; max-height: 14vh; padding: 4% 4% 4% 0%;">
-                        <div v-if="isMenu == 'hello'" class="navHeader h-center">
-                          Welcome
-                        </div>
-                        <div v-if="isMenu != 'hello' && isOpen == false && openByPasscode == false"  class="navHeader h-center">
-                          <transition name='fade'>
-                          <div v-if="isStep == 1">Select a Beetle box</div>
-                          <div v-else-if="isStep == 2">Comfirm renting</div>
-                          <div v-else-if="isStep == 3">Face Recognition</div>
-                          <div v-else-if="isStep == 4">Set passcode</div>
-                          <div v-else-if="isStep == 5">Confirm passcode</div>
-                          <div v-else-if="isStep == 6">Success</div>
-                          </transition>
-                        </div>
-                        <div v-if="isOpen == true && openByPasscode == true" class="navHeader h-center">
-                          <transition name='fade'>
-                          <div v-if="isStep == 1">Input phone number</div>
-                          <div v-else-if="isStep == 2">Select box</div>
-                          <div v-else-if="isStep == 3">Input passscode</div>
-                          </transition>
-                        </div>
-                        <div v-if="isOpen == true && openByPasscode == false" class="navHeader h-center">
-                          <transition name='fade'>
-                          <div v-if="isStep == 1">Select box</div>
-                          <div v-else-if="isStep == 2">Select box</div>
-                          <div v-else-if="isStep == 3">Input passscode</div>
-                          </transition>
-                        </div>
-                      </div>
-                    </v-flex>
-                  </v-layout>                  
-                </div>
-                <div class="content">
+            <v-flex xs10>
+              <div
+                class="h-center"
+                style="min-height: 14vh; max-height: 14vh; padding: 4% 4% 4% 0%;"
+              >
+                <div v-if="isMenu == 'hello'" class="navHeader h-center">Welcome</div>
+                <div
+                  v-if="isMenu != 'hello' && isOpen == false && openByPasscode == false"
+                  class="navHeader h-center"
+                >
                   <transition name="fade">
-                    <component v-bind:is="isMenu"></component>
+                    <div v-if="isStep == 1">Select a Beetle box</div>
+                    <div v-else-if="isStep == 2">Comfirm renting</div>
+                    <div v-else-if="isStep == 3">Face Recognition</div>
+                    <div v-else-if="isStep == 4">Set passcode</div>
+                    <div v-else-if="isStep == 5">Confirm passcode</div>
+                    <div v-else-if="isStep == 6">Success</div>
                   </transition>
-                </div>                    
+                </div>
+                <div v-if="isOpen == true && openByPasscode == true" class="navHeader h-center">
+                  <transition name="fade">
+                    <div v-if="isStep == 1">Input phone number</div>
+                    <div v-else-if="isStep == 2">Select box</div>
+                    <div v-else-if="isStep == 3">Input passscode</div>
+                  </transition>
+                </div>
+                <div v-if="isOpen == true && openByPasscode == false" class="navHeader h-center">
+                  <transition name="fade">
+                    <div v-if="isStep == 1">Select box</div>
+                    <div v-else-if="isStep == 2">Select box</div>
+                    <div v-else-if="isStep == 3">Input passscode</div>
+                  </transition>
+                </div>
+              </div>
             </v-flex>
-        </v-layout> 
-        <v-dialog
-          v-model="loading"
-          persistent
-          width="300"
-          lazy
-        >
-          <v-card
-            color="indigo"
-            dark
-          >
-            <v-card-text>
-              Loading...
-              <v-progress-linear
-                indeterminate
-                color="white"
-                class="mb-0"
-              ></v-progress-linear>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
-        <v-dialog
-            v-model="thanksAlert"
-            width="500"
-            >
-                <v-card>
-                    <v-card-title
-                    class="headline grey lighten-2 center"
-                    primary-title
-                    >
-                        Thank you
-                    </v-card-title>
-
-                    <v-card-text class="center">
-                        Thank you for choosing us. Your box is opened
-                    </v-card-text>
-                </v-card>
-      </v-dialog>
-      <watcher></watcher>
-    </v-app>
+          </v-layout>
+        </div>
+        <div class="content">
+          <transition name="fade">
+            <component v-bind:is="isMenu"></component>
+          </transition>
+        </div>
+      </v-flex>
+    </v-layout>
+    <loading-modal :show="loading"></loading-modal>
+    <thank-you-modal :show="thanksAlert"></thank-you-modal>
+    <watcher></watcher>
+  </v-app>
 </template>
 
 <script>
 import OutlineLabel from "./OutlineLabel";
 import { mapGetters, mapActions } from "vuex";
-import vuex from "../const/vuex"
-import { Menu, BoxList, BoxRenting, Receipt, watcher, PhoneAsk } from "./index.js";
+import vuex from "../const/vuex";
+import {
+  Menu,
+  BoxList,
+  BoxRenting,
+  Receipt,
+  watcher,
+  PhoneAsk
+} from "./index.js";
 import { RentingStep, PreviewCam, PasscodePad } from "./UIComponents/index.js";
+import { loadingModal, thankYouModal } from "./modal/index";
+import { sidebar } from "./sideBar/index";
 
 export default {
   name: "mainpage",
@@ -140,7 +108,10 @@ export default {
     checkpasscode: PasscodePad,
     receipt: Receipt,
     phoneask: PhoneAsk,
-    watcher
+    watcher,
+    loadingModal,
+    thankYouModal,
+    sidebar
   },
   data() {
     return {
