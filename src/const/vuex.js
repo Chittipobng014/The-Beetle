@@ -22,7 +22,8 @@ export default {
         "getBoxes",
         "loading",
         "thanksAlert",
-        "openByPasscode"
+        "openByPasscode",
+        "faceDetectFail"
       ],
       setters: [
         "showThanksAlert",
@@ -50,6 +51,8 @@ export default {
         "showLoading",
         "hideLoading",
         "setSelectedBox",
-        "setOpenByPasscode"
+        "setOpenByPasscode",
+        "showFaceFail",
+        "hideFaceFail"
       ]
 }

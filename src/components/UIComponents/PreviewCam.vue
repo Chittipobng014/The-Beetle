@@ -1,23 +1,13 @@
 <template>
-    <div>
-      <v-dialog
-            v-model="facefail"
-            width="500"
-            >
-                <v-card>
-                    <v-card-title
-                    class="headline grey lighten-2 center"
-                    primary-title
-                    >
-                        No face deteced!!
-                    </v-card-title>
+  <div>
+    <v-dialog v-model="facefail" width="500">
+      <v-card>
+        <v-card-title class="headline grey lighten-2 center" primary-title>No face deteced!!</v-card-title>
 
-                    <v-card-text class="center">
-                        Please use passcode
-                    </v-card-text>
-                </v-card>
-      </v-dialog>
-    </div>
+        <v-card-text class="center">Please use passcode</v-card-text>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -31,7 +21,6 @@ export default {
   name: "faceReg",
   data() {
     return {
-      alert: false,
       facefail: false
     };
   },
@@ -154,10 +143,10 @@ export default {
     },
     startCameraAbove: function() {
       CameraPreview.startCamera({
-        x: 0,
+        x: 100,
         y: 0,
-        width: screen.height,
-        height: screen.width,
+        width: screen.height*0.8,
+        height: screen.width*0.8,
         toBack: false,
         previewDrag: false,
         tapPhoto: false
@@ -220,10 +209,10 @@ export default {
       }, 2000);
     },
     noFaceMatch: function() {
-      this.facefail = true;
+      this.showFaceFail()
       setTimeout(() => {
         this.setOpenByPasscode(true);
-        this.facefail = false;
+        this.hideFaceFail()
         this.setMenu("phoneask");
         this.setStep("1");
       }, 3000);
@@ -235,12 +224,17 @@ export default {
   mounted() {
     this.show();
     this.startCameraAbove();
-    setTimeout(() => {
-      this.takePicture();
-    }, 5000);
+    // setTimeout(() => {
+    //   this.takePicture();
+    // }, 5000);
   }
 };
 </script>
 
 <style scoped>
+.box {
+  width: 50vw;
+  height: 50vh;
+  border: 3px solid black
+}
 </style>

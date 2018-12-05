@@ -1,8 +1,6 @@
 <template>
   <div class="aviableBox" @click="next()">
-    <div class="bottomRight textSize">
-      {{boxNo}}
-    </div>
+    <div class="bottomRight textSize">{{boxNo}}</div>
   </div>
 </template>
 
@@ -38,7 +36,6 @@ export default {
         this.setBoxState("OPEN");
         this.setUpdateBoxs(true);
         this.hideLoading();
-        console.log(checkout.status);
         await this.selectOpenBoxes(false);
         if (checkout.status != 200) {
           this.setIsOpen(false);
@@ -59,27 +56,21 @@ export default {
           name: this.name,
           price: this.price
         };
-        console.log(`ELSE IF ${box}`);
         this.setSelectedBox(box);
         this.setMenu("passcode");
-        this.setStep("3")
+        this.setStep("3");
       } else {
         let box = {
           id: this.id,
           name: this.name,
           price: this.price
         };
-        console.log(`ELSE ${box}`);
         this.setSelectedBox(box);
         this.setMenu("renting");
         this.setStep("2");
       }
     }
   },
-  mounted() {
-    console.log(this.openSelection);
-  },
-
   computed: {
     ...mapGetters(vuex.getters),
     boxNo: function() {

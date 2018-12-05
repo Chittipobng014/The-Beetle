@@ -22,9 +22,11 @@ export default new Vuex.Store({
     openSelection: false,
     loading: true,
     thanksAlert: false,
-    openByPasscode: false
+    openByPasscode: false,
+    faceDetectFail: false
   },
   getters: {
+    faceDetectFail: state => state.faceDetectFail,
     openByPasscode: state => state.openByPasscode,
     thanksAlert: state => state.thanksAlert,
     loading: state => state.loading,
@@ -49,6 +51,9 @@ export default new Vuex.Store({
     openBox: state => state.openBox
   },
   mutations: {
+    SET_FACEDETECTFAIL(state, payload) {
+      state.faceDetectFail = payload
+    },
     SET_OPENPASSCODE(state, payload) {
       state.openByPasscode = payload
     },
@@ -213,6 +218,8 @@ export default new Vuex.Store({
     hideLoading: ({ commit }) => commit("SET_LOADING", false),
     showThanksAlert: ({ commit }) => commit("SET_THANKSALERT", true),
     hideThanksAlert: ({ commit }) => commit("SET_THANKSALERT", false),
-    setOpenByPasscode: ({ commit }, payload) => commit("SET_OPENPASSCODE", payload)
+    setOpenByPasscode: ({ commit }, payload) => commit("SET_OPENPASSCODE", payload),
+    showFaceFail: ({ commit }) => commit("SET_FACEDETECTFAIL", true),
+    hideFaceFail: ({ commit }) => commit("SET_FACEDETECTFAIL", false)
   }
 })

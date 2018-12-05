@@ -23,15 +23,10 @@
       <v-flex xs8 style="padding: 0px;   padding-left: 0px;  padding-top: 0px">
         <div class="navbar">
           <v-layout row wrap>
-            <v-flex xs2>
-              <div style="min-height: 14vh; max-height: 14vh;" class="h-center">
-                <img src="../assets/beetle.png" alt class="navBeetle">
-              </div>
-            </v-flex>
-            <v-flex xs10>
+            <v-flex xs12>
               <div
                 class="h-center"
-                style="min-height: 14vh; max-height: 14vh; padding: 4% 4% 4% 0%;"
+                style="min-height: 14vh; max-height: 14vh; padding: 4% 4% 4% 4%;"
               >
                 <div v-if="isMenu == 'hello'" class="navHeader h-center">Welcome</div>
                 <div
@@ -74,6 +69,7 @@
     </v-layout>
     <loading-modal :show="loading"></loading-modal>
     <thank-you-modal :show="thanksAlert"></thank-you-modal>
+    <face-detect-fail :show="faceDetectFail"></face-detect-fail>
     <watcher></watcher>
   </v-app>
 </template>
@@ -91,7 +87,7 @@ import {
   PhoneAsk
 } from "./index.js";
 import { RentingStep, PreviewCam, PasscodePad } from "./UIComponents/index.js";
-import { loadingModal, thankYouModal } from "./modal/index";
+import { loadingModal, thankYouModal, faceDetectFail } from "./modal/index";
 import { sidebar } from "./sideBar/index";
 
 export default {
@@ -111,7 +107,8 @@ export default {
     watcher,
     loadingModal,
     thankYouModal,
-    sidebar
+    sidebar,
+    faceDetectFail
   },
   data() {
     return {
