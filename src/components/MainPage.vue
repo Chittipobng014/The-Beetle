@@ -43,14 +43,28 @@
                         <div v-if="isMenu == 'hello'" class="navHeader h-center">
                           Welcome
                         </div>
-                        <div v-if="isMenu == 'list' || isMenu == 'renting' || isMenu == 'faceReg' || isMenu == 'passcode' || isMenu == 'repasscode' || isMenu == 'receipt' || isMenu == 'checkpasscode' && isOpen == false" class="navHeader h-center">
+                        <div v-if="isMenu != 'hello' && isOpen == false && openByPasscode == false"  class="navHeader h-center">
                           <transition name='fade'>
                           <div v-if="isStep == 1">Select a Beetle box</div>
                           <div v-else-if="isStep == 2">Comfirm renting</div>
-                          <div v-else-if="isStep == 3">Face Recognitio</div>
+                          <div v-else-if="isStep == 3">Face Recognition</div>
                           <div v-else-if="isStep == 4">Set passcode</div>
                           <div v-else-if="isStep == 5">Confirm passcode</div>
                           <div v-else-if="isStep == 6">Success</div>
+                          </transition>
+                        </div>
+                        <div v-if="isOpen == true && openByPasscode == true" class="navHeader h-center">
+                          <transition name='fade'>
+                          <div v-if="isStep == 1">Input phone number</div>
+                          <div v-else-if="isStep == 2">Select box</div>
+                          <div v-else-if="isStep == 3">Input passscode</div>
+                          </transition>
+                        </div>
+                        <div v-if="isOpen == true && openByPasscode == false" class="navHeader h-center">
+                          <transition name='fade'>
+                          <div v-if="isStep == 1">Select box</div>
+                          <div v-else-if="isStep == 2">Select box</div>
+                          <div v-else-if="isStep == 3">Input passscode</div>
                           </transition>
                         </div>
                       </div>
@@ -65,7 +79,7 @@
             </v-flex>
         </v-layout> 
         <v-dialog
-          v-model="dialog"
+          v-model="loading"
           persistent
           width="300"
           lazy
@@ -85,7 +99,7 @@
           </v-card>
         </v-dialog>
         <v-dialog
-            v-model="alert"
+            v-model="thanksAlert"
             width="500"
             >
                 <v-card>
@@ -101,6 +115,7 @@
                     </v-card-text>
                 </v-card>
       </v-dialog>
+      <watcher></watcher>
     </v-app>
 </template>
 
@@ -108,7 +123,7 @@
 import OutlineLabel from "./OutlineLabel";
 import { mapGetters, mapActions } from "vuex";
 import vuex from "../const/vuex"
-import { Menu, BoxList, BoxRenting, Receipt } from "./index.js";
+import { Menu, BoxList, BoxRenting, Receipt, watcher, PhoneAsk } from "./index.js";
 import { RentingStep, PreviewCam, PasscodePad } from "./UIComponents/index.js";
 
 export default {
@@ -124,6 +139,8 @@ export default {
     repasscode: PasscodePad,
     checkpasscode: PasscodePad,
     receipt: Receipt,
+    phoneask: PhoneAsk,
+    watcher
   },
   data() {
     return {
@@ -131,17 +148,6 @@ export default {
       boxs: [],
       alert: false
     };
-  },
-  watch: {
-    startApp: function(state) {
-      if (state == true) {
-        setTimeout(() => {
-          this.dialog = false;
-        }, 500);
-      } else if (state == false) {
-        this.dialog = true;
-      }
-    }
   },
   computed: {
     ...mapGetters(vuex.getters)

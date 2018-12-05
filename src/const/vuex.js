@@ -17,9 +17,17 @@ export default {
         "getPeripheral",
         "startApp",
         "openBox",
-        "phonenumber"
+        "phonenumber",
+        "openSelection",
+        "getBoxes",
+        "loading",
+        "thanksAlert",
+        "openByPasscode"
       ],
       setters: [
+        "showThanksAlert",
+        "hideThanksAlert",
+        "selectOpenBoxes",
         "setMenu",
         "setStep",
         "setData",
@@ -37,6 +45,11 @@ export default {
         "setPeripheral",
         "setBoxState",
         "clearDetails",
-        "clearPeripheral"
+        "clearPeripheral",
+        "setFaceID",
+        "showLoading",
+        "hideLoading",
+        "setSelectedBox",
+        "setOpenByPasscode"
       ]
 }

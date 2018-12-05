@@ -60,12 +60,12 @@
                         <div class="dashed">•</div>                        
                     </v-flex>
                     <v-flex class="flex-padding circle" v-for="i in 9" :key="i" xs4>
-                        <div class="circleNo ripple" @click="addCode(i)">
+                        <div class="circleNo" @click="addCode(i)">
                             {{i}}
                         </div>
                     </v-flex>
                     <v-flex row class="circle">
-                        <div class="circleNo ripple" @click="addCode(0)" >
+                        <div class="circleNo" @click="addCode(0)" >
                             0
                         </div>
                     </v-flex>
@@ -95,22 +95,21 @@ export default {
     passcode: function(change) {
       if (this.code.length == 6) {
         if (this.isMenu == "passcode" && this.isOpen == false) {
-          //set state and send data to Controller
+          console.log(`${this.isMenu}`)
           this.setPasscode(this.passcode);
           this.setMenu("repasscode");
-          //clear slot
+          this.setStep("5")
           setTimeout(() => {
             this.code = [];
           }, 500);
         } else if (this.isMenu == "repasscode" && this.isOpen == false) {
-          //set state and send data to Controller
+          console.log(`${this.isMenu}`)
           this.setRepasscode(this.passcode);
           this.setMenu("checkpasscode");
-          //clear slot
           setTimeout(() => {
             this.code = [];
           }, 500);
-        } else if(this.isMenu == "passcode" && this.isOpen == true){
+        } else if(this.isMenu == "passcode" && this.isOpen == true && this.openByPasscode == true){
           this.setPasscode(this.passcode);
           this.setMenu("openByPasscode");
           setTimeout(() => {
@@ -127,7 +126,9 @@ export default {
       "getData",
       "passcode",
       "repasscode",
-      "isOpen"
+      "isOpen",
+      "openSelection",
+      "openByPasscode"
     ]),
     passcode: function() {
       let passcode = "";

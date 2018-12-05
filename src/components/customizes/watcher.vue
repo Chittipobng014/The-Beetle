@@ -1,14 +1,11 @@
-<template>
-  
-</template>
+<template></template>
 
 <script>
-import vuex from "../../const/vuex"
-import configvars from "../../const/configvars"
-import { mapGetters, mapActions } from "vuex"
-import ble from "../ble/ble"
-import http from '../API/common'
-
+import vuex from "../../const/vuex";
+import configvars from "../../const/configvars";
+import { mapGetters, mapActions } from "vuex";
+import ble from "../ble/ble";
+import http from "../API/common";
 
 export default {
   computed: {
@@ -16,14 +13,13 @@ export default {
   },
   methods: {
     ...mapActions(vuex.setters),
-    checkPasscode: function() {
+    checkPasscode: async function() {
       //check passcode
+      console.log(`passcode: ${this.passcode} and Re: ${this.repasscode}`);
       if (this.repasscode != "" && this.passcode != "") {
         this.dialog = true;
         if (this.repasscode == this.passcode) {
           // passcode match
-          this.setUpdateTransactions(true);
-          this.setUpdateBoxs(true);
           setTimeout(() => {
             this.dialog = false;
             this.setMenu("receipt");
@@ -40,38 +36,51 @@ export default {
         }
       }
     },
-    openWithPasscode: function() {
-      var transactionVadilate = this.checkTransactionPasscode(this.passcode);
-      if (transactionVadilate == true) {
-        this.alert = true;
-        this.setUpdateTransactions(true);
-        this.setUpdateBoxs(true);
-        setTimeout(() => {
-          this.setMenu("hello");
+    openWithPasscode: async function() {
+      try {
+        this.showLoading();
+        const boxid = this.getSelectedBox[0].id;
+        const result = await http.passcodeVerify(this.passcode, boxid);
+        if (result.data.result == false) {
+          console.log("passcode fail");
+        } else {
+          const peripheral = await ble.bleConnect(boxid);
+          this.setPeripheral(peripheral);
+          this.setBoxState("OPEN");
+          await this.selectOpenBoxes(false);
+          this.setOpenByPasscode(false);
+          this.hideLoading();
           this.setIsOpen(false);
-          this.alert = false;
-        }, 2000);
-      } else {
-        this.setMenu("passcode");
-        this.passcodeAttempInc();
+          this.showThanksAlert();
+          setTimeout(() => {
+            this.hideThanksAlert();
+            this.setMenu("hello");
+          }, 2000);
+        }
+      } catch (error) {
+        console.log(`error passcode ${error}`);
+        this.setMenu("hello");
+        this.setStep("1");
+        this.setIsOpen(false);
+        this.setOpenByPasscode(false);
       }
     },
-    renting: function() {
+    renting: async function() {
       const rentingTransaction = {
         boxid: this.getSelectedBox[0].id,
         passcode: this.passcode,
         faceid: this.getFaceID,
         phonenumber: this.phonenumber,
         branchid: configvars.branchid()
-      }
+      };
       try {
-        const renting = await http.renting(rentingTransaction)
-        console.log(renting.data)
+        const renting = await http.renting(rentingTransaction);
+        console.log(renting.data);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     },
-    connectToBox: function() {
+    connectToBox: async function() {
       try {
         const connect = await ble.bleConnect(this.getSelectedBox[0].id);
         this.setPeripheral(connect);
@@ -79,18 +88,18 @@ export default {
         console.log(error);
       }
     },
-    tempOpenBox: function() {
-      console.log("BOX OPENED")
-      ble.openBox(this.getPeripheral)
-      setTimeout(() => {
-        console.log("BOX CLOESE")
-        ble.closeBox(this.getPeripheral)
-        this.setBoxState("CLOSE")
-        this.clearDetails()
-        this.clearPeripheral()
-      }, 5000)
+    tempOpenBox: async function() {
+      try {
+        let open = await ble.openBox(this.getPeripheral);
+        console.log(`temp open ${open}`);
+        setTimeout(async () => {
+          let close = await ble.closeBox(this.getPeripheral);
+          console.log(`temp close ${close}`);
+          this.setBoxState("CLOSE");
+        }, 5000);
+      } catch (error) {}
     },
-    lockBox: function() { 
+    lockBox: async function() {
       this.setMenu("hello");
       this.setUpdateTransactions(true);
       this.clearAttemp();
@@ -98,30 +107,44 @@ export default {
   },
   watch: {
     isMenu: async function(menu) {
-      console.log(menu)
+      console.log("​menu", menu);
       if (menu == "checkpasscode") {
-        this.checkPasscode()
-      } else if (menu == "openByPasscode" && this.isOpen == true) {
-        this.openWithPasscode()
+        this.checkPasscode();
+      } else if (
+        menu == "openByPasscode" &&
+        this.isOpen == true &&
+        this.openByPasscode == true
+      ) {
+        this.openWithPasscode();
       } else if (menu == "renting") {
-        this.connectToBox()
+        this.connectToBox();
       } else if (menu == "receipt") {
-        this.renting()
+        this.renting();
       }
     },
     passcodeAttemp: async function(updated) {
       if (updated == 3) {
-        this.lockBox()
+        this.lockBox();
       }
     },
-    isOpen: async function(updated) {
-      console.log(updated);
+    isOpen: async function(isopen) {
+      console.log("​isopen", isopen);
     },
-    openBox: function(state) {
+    openBox: async function(state) {
+			console.log("​state", state)
       if (state == "OPEN") {
-        this.tempOpenBox()
+        this.tempOpenBox();
+      } else if (state == "CLOSE") {
+        console.log('disconnecting')
+        await ble.bleDisconnect(this.getSelectedBox[0].id);
+        console.log("​disconnected");
+        this.clearDetails();
+        this.clearPeripheral();
       }
     },
+    openByPasscode: function(passcode) {
+      console.log("​passcode", passcode);
+    }
   }
-}
+};
 </script>

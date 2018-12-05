@@ -6,7 +6,7 @@ export default {
             url: "https://southeastasia.api.cognitive.microsoft.com/face/v1.0/group",
             method: "POST",
             headers: {
-                "Ocp-Apim-Subscription-Key": "863c391b338e49e7995d2fdeb9a4477c"
+                "Ocp-Apim-Subscription-Key": "9b262b7105ad4015b32910e4070274a9"
             },
             data: {
                 faceIds: faces
@@ -15,7 +15,7 @@ export default {
         const result = await axios(faceVerify)
         return result
     },
-    detection: async url => {
+    detection: async photoUrl => {
         var facedetect = {
             url:
                 "https://southeastasia.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false",
@@ -24,11 +24,15 @@ export default {
             },
             method: "POST",
             headers: {
-                "Ocp-Apim-Subscription-Key": "863c391b338e49e7995d2fdeb9a4477c"
+                "Ocp-Apim-Subscription-Key": "9b262b7105ad4015b32910e4070274a9"
             }
         }
         const result = await axios(facedetect)
-        const faceid = result.data[0].faceId
-        return faceid
+        if (result.data.length == 0) {
+            return false
+        } else {
+            const faceid = result.data[0].faceId
+            return faceid
+        }
     }
 }

@@ -1,19 +1,22 @@
 export default {
-    turnONOFF: (peripheral, cmd) => {
-        for (let index = 0; index < peripheral.characteristics.length; index++) {
-            const element = peripheral.characteristics[index];
-            if (element.properties == 'Write') {
-                var array = new Uint8Array(cmd.length);
-                for (var i = 0, l = cmd.length; i < l; i++) {
-                    array[i] = cmd.charCodeAt(i);
+    turnONOFF: function (peripheral, cmd) {
+        return new Promise((resolve, reject) => {
+            for (let index = 0; index < peripheral.characteristics.length; index++) {
+                const element = peripheral.characteristics[index];
+                console.log(element)
+                if (element.properties[0] == 'Write') {
+                    var array = new Uint8Array(cmd.length);
+                    for (var i = 0, l = cmd.length; i < l; i++) {
+                        array[i] = cmd.charCodeAt(i);
+                    }
+                    ble.write(peripheral.id, element.service, element.characteristic, array.buffer, function () {
+                        resolve("succenss")
+                    }, function () {
+                        resolve("fail")
+                    });
                 }
-                ble.write(peripheral.id, element.service, element.characteristic, array.buffer, function () {
-                    console.log('Success');
-                }, function () {
-                    console.log('Fail');
-                });
             }
-        }
+        })
     },
     stringToBytes: (string) => {
         var array = new Uint8Array(string.length);
@@ -27,16 +30,32 @@ export default {
             ble.connect(id, (peripheral) => {
                 console.log("Connected")
                 return resolve(peripheral)
-            }),
-                (error) => {
-                    return reject(error)
-                };
+            }), (error) => {
+                return resolve(error)
+            };
         })
     },
-    openBox: function (peripheral) {
-        this.turnONOFF(peripheral, "ON");
+    bleDisconnect: function (id) {
+        return new Promise((resolve, reject) => {
+            ble.disconnect(id, () => {
+                resolve("Disconnected")
+            }, (err) => {
+                resolve(err)
+            });
+        })
     },
-    closeBox: function (peripheral) {
-        this.turnONOFF(peripheral, "OFF");
+    openBox: async function (peripheral) {
+        return new Promise(async (resolve, reject) => {
+            const open = await this.turnONOFF(peripheral, "ON");
+            resolve(open)
+        })
+    },
+    closeBox: async function (peripheral) {
+        return new Promise(async (resolve, reject) => {
+            const close = await this.turnONOFF(peripheral, "OFF");
+            setTimeout(() => {
+                resolve(close)
+            }, 2000);
+        })
     },
 }

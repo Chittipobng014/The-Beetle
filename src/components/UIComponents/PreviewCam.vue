@@ -17,67 +17,30 @@
                     </v-card-text>
                 </v-card>
       </v-dialog>
-      <v-dialog
-            v-model="alert"
-            width="500"
-            >
-                <v-card>
-                    <v-card-title
-                    class="headline grey lighten-2 center"
-                    primary-title
-                    >
-                        Thank you
-                    </v-card-title>
-
-                    <v-card-text class="center">
-                        Thank you for choosing us. Your box is opened
-                    </v-card-text>
-                </v-card>
-      </v-dialog>
-      <v-dialog
-          v-model="loading"
-          persistent
-          width="300"
-          lazy
-        >
-          <v-card
-            color="indigo"
-            dark
-          >
-            <v-card-text>
-              Loading...
-              <v-progress-linear
-                indeterminate
-                color="white"
-                class="mb-0"
-              ></v-progress-linear>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
     </div>
 </template>
 
 <script>
 import { mapActions, mapGetters } from "vuex";
-import ble from '../ble/ble'
-import vuex from '../../const/vuex'
-import http from '../API/common'
-import faceAPI from '../API/faceAPI'
+import ble from "../ble/ble";
+import vuex from "../../const/vuex";
+import http from "../API/common";
+import faceAPI from "../API/faceAPI";
 
 export default {
   name: "faceReg",
   data() {
     return {
       alert: false,
-      loading: false,
       facefail: false
     };
   },
   methods: {
     ...mapActions(vuex.setters),
     uploadPhoto: async function(imageURI) {
-      return new Promise(async () => {
+      return new Promise(async (resolve, reject) => {
         try {
+          console.log(`uploading`);
           var base64str = imageURI.toString();
           var binary = atob(base64str.replace(/\s/g, ""));
           var len = binary.length;
@@ -91,73 +54,113 @@ export default {
           var photoRef = this.$storage.child("photos/" + timestamp + ".jpeg");
           const upload = await photoRef.put(blob);
           const photoUrl = await photoRef.getDownloadURL();
-          resolve(photoUrl)
+          resolve(photoUrl);
         } catch (error) {
-          reject(error)
-          console.log(error)
+          reject(error);
+          console.log(`Upload Error ${error}`);
         }
-      })
+      });
     },
     openWithFace: async function(faceID) {
       try {
-        let facesid = await http.getFaceid(1)
-        let facesRes = facesid.data.facesid
-        let faces = []
-        facesRes.forEach(e => {
-          faces.push(e.faceid)
-        })
-        faces.push(faceID)
-        
-        const verify = await faceAPI.verify(faces);
-        if (verify.data.groups[0].length < 2) { // no face match
-          this.noFaceMatch()
-        } else if (verify.data.groups[0].length == 2) {
-          const faceIdOfBox = verify.data.groups[0].filter(e => {
-            return e != faceId
-          })
-          const transactionid = boxIdFromFaceId[0].id
-          const peripheral = await ble.bleConnect(boxid)
-          this.setPeripheral(peripheral)
-          this.setBoxState("OPEN")
-          this.setUpdateBoxs(true);
-          this.loading = false;
-          this.hide();
-          this.alert = true;
-          const checkout = await http.checkout(transactionid)
-          this.openSuccess()
-        } else if (verify.data.groups[0].length > 2) {
-          //go select box
+        let facesid = await http.getFaceid(1);
+        let facesRes = facesid.data.facesid;
+        if (facesRes.length == 0) {
+          this.noFaceMatch();
+        } else {
+          let faces = [];
+          facesRes.forEach(e => {
+            faces.push(e.faceid);
+          });
+          faces.push(faceID);
+
+          const verify = await faceAPI.verify(faces);
+
+          if (verify.data.groups[0].length < 2) {
+            this.noFaceMatch(); //-------------------------------------
+            //---------------------------------------------------------------------------------------------------------------
+          } else if (verify.data.groups[0].length == 2) {
+            const faceIdOfBox = verify.data.groups[0].filter(e => {
+              return e != faceID;
+            });
+
+            const boxIdFromFaceId = facesRes.filter(e => {
+              return e.faceid == faceIdOfBox;
+            });
+            const boxid = boxIdFromFaceId[0].boxid;
+            const transactionid = boxIdFromFaceId[0].id;
+            const peripheral = await ble.bleConnect(boxid);
+            this.setPeripheral(peripheral);
+            this.setBoxState("OPEN");
+            this.setUpdateBoxs(true);
+            this.hideLoading();
+            this.hide();
+            this.showThanksAlert();
+            const checkout = await http.checkout(transactionid);
+            this.openSuccess();
+          } else if (verify.data.groups[0].length > 2) {
+            const faceIdOfBox = verify.data.groups[0].filter(e => {
+              return e != faceID;
+            });
+
+            const boxIdFromFaceId = facesRes.filter(e => {
+              const faceid = faceIdOfBox.filter(f => {
+                return f == e.faceid;
+              });
+              return e.faceid == faceid;
+            });
+
+            let boxid = [];
+            boxIdFromFaceId.forEach(id => {
+              boxid.push(id);
+            });
+
+            this.setBoxes(boxid);
+            let setState = await this.selectOpenBoxes(true);
+            if (setState) {
+              this.setMenu("list");
+              this.setStep("1");
+            }
+          }
         }
       } catch (error) {
-        console.log(error)
+        this.noFaceMatch();
+        console.log(`Open With Face Error `);
+        console.log(`${error}`);
       }
     },
-    getFaceID: async function(photoUrl) {
-      return new Promise(async () => {
+    getFaceIDFromAPI: async function(photoUrl) {
+      return new Promise(async (resolve, reject) => {
         try {
-          var faceId = await faceAPI.detection(photoUrl)
-          resolve(faceId)
+          console.log(`getting face id`);
+          var faceId = await faceAPI.detection(photoUrl);
+          if (faceId == false) {
+            resolve(false);
+          } else {
+            resolve(faceId);
+          }
         } catch (error) {
-          reject(error)
-          console.log(error)
+          reject(error);
+          console.log(error);
         }
-      })
+      });
     },
-    setFaceID: async function(faceID) {
-      this.loading = false;
+    saveFaceID: async function(faceID) {
+      console.log(`face id saved`);
+      this.hideLoading();
       this.setFaceID(faceID);
       this.setMenu("passcode");
       this.setStep("4");
     },
     startCameraAbove: function() {
       CameraPreview.startCamera({
-        x: 50,
-        y: 50,
-        width: 819,
-        height: 614,
+        x: 0,
+        y: 0,
+        width: screen.height,
+        height: screen.width,
         toBack: false,
         previewDrag: false,
-        tapPhoto: true
+        tapPhoto: false
       });
     },
     startCameraBelow: function() {
@@ -178,22 +181,28 @@ export default {
     takePicture: function() {
       CameraPreview.takePicture(async imageURI => {
         try {
-        this.hide();
-        this.loading = true;
-        const photoUrl = await uploadPhoto(imageURI);
-        const faceID = await this.getFaceID(photoUrl) 
-        if (this.isOpen == true) {
-          this.openWithFace(faceID)
-        } else {
-          if (faceID == null) {
+          this.hide();
+          this.showLoading();
+          console.log(`start upload`);
+          const photoUrl = await this.uploadPhoto(imageURI);
+          const faceID = await this.getFaceIDFromAPI(photoUrl);
+          if (faceID == false) {
+            this.setMenu("hello");
+          }
+          if (this.isOpen == true) {
+            this.openWithFace(faceID);
+          } else {
+            if (faceID == null) {
               // show alert message and instruction
               // retake picture
-          } else {
-            this.setFaceID(faceID)
+            } else {
+              this.saveFaceID(faceID);
+            }
           }
-        }  
         } catch (error) {
-          console.log(error)
+          console.log(`take picture error ${error}`);
+          this.setMenu("hello");
+          this.setIsOpen(false);
         }
       });
     },
@@ -204,18 +213,20 @@ export default {
       CameraPreview.hide();
     },
     openSuccess: function() {
-      setTimeout( () => {
-        this.isOpen = false
-        this.alert = false;
+      setTimeout(() => {
+        this.setIsOpen(false);
+        this.hideThanksAlert();
         this.setMenu("hello");
-      }, 2000)
+      }, 2000);
     },
     noFaceMatch: function() {
       this.facefail = true;
-        setTimeout(() => {
-          this.facefail = false;
-          this.setMenu("passcode");
-      }, 3000)
+      setTimeout(() => {
+        this.setOpenByPasscode(true);
+        this.facefail = false;
+        this.setMenu("phoneask");
+        this.setStep("1");
+      }, 3000);
     }
   },
   computed: {
@@ -226,9 +237,7 @@ export default {
     this.startCameraAbove();
     setTimeout(() => {
       this.takePicture();
-    }, 3000);
-    // this.setMenu("passcode");
-    // this.setStep("4");
+    }, 5000);
   }
 };
 </script>

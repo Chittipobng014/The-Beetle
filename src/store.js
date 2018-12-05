@@ -6,7 +6,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    status: { menu: "hello", step: "", isOpen: false, data: {passcode: '', repasscode: ''} },
+    status: { menu: "hello", step: "", isOpen: false, data: { passcode: '', repasscode: '' } },
     selectedBox: [],
     peripheral: null,
     faceID: null,
@@ -18,9 +18,17 @@ export default new Vuex.Store({
     passcodeAttemp: 0,
     startApp: null,
     phonenumber: '',
-    openBox: 'CLOSE'
+    openBox: 'CLOSE',
+    openSelection: false,
+    loading: true,
+    thanksAlert: false,
+    openByPasscode: false
   },
   getters: {
+    openByPasscode: state => state.openByPasscode,
+    thanksAlert: state => state.thanksAlert,
+    loading: state => state.loading,
+    openSelection: state => state.openSelection,
     startApp: state => state.startApp,
     isMenu: state => state.status.menu,
     isStep: state => state.status.step,
@@ -41,25 +49,37 @@ export default new Vuex.Store({
     openBox: state => state.openBox
   },
   mutations: {
-    SET_PHONENUMBER(state, payload){
+    SET_OPENPASSCODE(state, payload) {
+      state.openByPasscode = payload
+    },
+    SET_THANKSALERT(state, payload) {
+      state.thanksAlert = payload
+    },
+    SET_LOADING(state, payload) {
+      state.loading = payload
+    },
+    SET_OPENSELECTION(state, payload) {
+      state.openSelection = payload
+    },
+    SET_PHONENUMBER(state, payload) {
       state.phonenumber = payload
     },
-    START_APP(state, payload){
+    START_APP(state, payload) {
       state.startApp = payload
     },
-    CLEAR_ATTEMP(state){
+    CLEAR_ATTEMP(state) {
       state.passcodeAttemp = 0;
     },
-    INCREASE_ATTEMP(state){
+    INCREASE_ATTEMP(state) {
       state.passcodeAttemp++
     },
-    SET_UPDATEBOXS(state, payload){
+    SET_UPDATEBOXS(state, payload) {
       state.updateBoxs = payload;
     },
-    SET_UPDATETRANSACTIONS(state, payload){
+    SET_UPDATETRANSACTIONS(state, payload) {
       state.updateTransactions = payload;
     },
-    CLEAR_DETAILS(state){
+    CLEAR_DETAILS(state) {
       state.status.data.passcode = '';
       state.status.data.repasscode = '';
       state.peripheral = null;
@@ -67,25 +87,25 @@ export default new Vuex.Store({
       state.tel = null;
       state.selectedBox = [];
     },
-    SET_BOXES(state, payload){
+    SET_BOXES(state, payload) {
       state.boxes = payload
     },
-    SET_TEL(state, payload){
+    SET_TEL(state, payload) {
       state.tel = payload;
     },
-    SET_FACEID(state, payload){
+    SET_FACEID(state, payload) {
       state.faceID = payload;
     },
-    SET_PERIPHERAL(state, payload){
+    SET_PERIPHERAL(state, payload) {
       state.peripheral = payload;
     },
-    CLEAR_PERIPHERAL(state){
-      state.peripheral = [];
+    CLEAR_PERIPHERAL(state) {
+      state.peripheral = null;
     },
-    ADDSELECTED_BOX(state, payload){
+    ADDSELECTED_BOX(state, payload) {
       state.selectedBox.push(payload)
     },
-    CLEAR_SELECTEDBOX(state){
+    CLEAR_SELECTEDBOX(state) {
       state.selectedBox = [];
     },
     boxview(state, payload) {
@@ -109,20 +129,20 @@ export default new Vuex.Store({
     SET_REPASSCODE(state, payload) {
       state.status.data.repasscode = payload;
     },
-    SET_ISOPEN(state, payload){
+    SET_ISOPEN(state, payload) {
       state.status.isOpen = payload;
     },
-    SET_TRANSACTIONS(state, payload){
+    SET_TRANSACTIONS(state, payload) {
       state.transactions = payload;
     },
-    CHANGE_BOX_STATE(state, payload){
+    CHANGE_BOX_STATE(state, payload) {
       state.openBox = payload
     }
   },
   actions: {
     setUpdateBoxs: ({ commit }, payload) => commit("SET_UPDATEBOXS", payload),
     setUpdateTransactions: ({ commit }, payload) => commit("SET_UPDATETRANSACTIONS", payload),
-    clearDetails: ( {commit} ) => commit("CLEAR_DETAILS"),
+    clearDetails: ({ commit }) => commit("CLEAR_DETAILS"),
     setMenu: ({ commit }, payload) => commit("SET_MENU", payload),
     setStep: ({ commit }, payload) => commit("SET_STEP", payload),
     setData: ({ commit }, payload) => commit("SET_DATA", payload),
@@ -132,27 +152,67 @@ export default new Vuex.Store({
       commit("ADDSELECTED_BOX", payload)
     },
     setPeripheral: ({ commit }, payload) => commit("SET_PERIPHERAL", payload),
-    clearPeripheral: ({ commit }, payload) => commit("CLEAR_PERIPHERAL"),
+    clearPeripheral: ({ commit }) => {
+      commit("CLEAR_PERIPHERAL")
+      console.log("Pheriperal was clear")
+    },
     setFaceID: ({ commit }, payload) => commit("SET_FACEID", payload),
     setTel: ({ commit }, payload) => commit("SET_TEL", payload),
-    setBoxes: async ({ commit }) => {
+    setBoxes: async ({ commit, getters }, payload) => {
       try {
-        commit("START_APP", false)
-        const boxes = await http.getallboxes()
-        commit("START_APP", true)
-        commit("SET_BOXES", boxes.data.boxes);
+        commit("SET_LOADING", true)
+        const fetch = await http.getallboxes()
+        const boxes = fetch.data.boxes
+        if (getters.isOpen == true) {
+          let result = boxes.filter((box) => {
+            let boxid = payload.filter((id) => {
+              if (id.boxid == box.id) {
+                console.log(id.boxid)
+                return id
+              }
+            })
+            console.log(boxid)
+            if (boxid.length == 0) {
+              return []
+            } else {
+              return box.id == boxid[0].boxid
+            }
+          })
+          commit("SET_LOADING", false)
+          commit("SET_BOXES", result);
+        } else {
+          let result = boxes.filter((box) => box.status == 'aviable')
+          commit("SET_LOADING", false)
+          commit("SET_BOXES", result);
+        }
+
       } catch (error) {
         console.log(error)
-        commit("START_APP", false)
+        commit("SET_LOADING", true)
       }
     },
-    setIsOpen: ( {commit }, payload) => commit("SET_ISOPEN", payload),
-    clearSelectedBox: ({commit }) => commit("CLEAR_SELECTEDBOX"),
-    setTransactions: ({commit }, payload) => commit("SET_TRANSACTIONS", payload),
+    setIsOpen: ({ commit }, payload) => commit("SET_ISOPEN", payload),
+    clearSelectedBox: ({ commit }) => commit("CLEAR_SELECTEDBOX"),
+    setTransactions: ({ commit }, payload) => commit("SET_TRANSACTIONS", payload),
     passcodeAttempInc: ({ commit }) => commit("INCREASE_ATTEMP"),
     clearAttemp: ({ commit }) => commit("CLEAR_ATTEMP"),
     appStart: ({ commit }) => commit("START_APP", payload),
     setPhonenumber: ({ commit }, payload) => commit("SET_PHONENUMBER", payload),
-    setBoxState: ({ commit }, payload) => commit("CHANGE_BOX_STATE", payload)
+    setBoxState: ({ commit }, payload) => commit("CHANGE_BOX_STATE", payload),
+    selectOpenBoxes: ({ commit }, payload) => {
+      return new Promise((resolve, rejects) => {
+        try {
+          commit("SET_OPENSELECTION", payload)
+          resolve(true)
+        } catch (error) {
+          rejects(error)
+        }
+      })
+    },
+    showLoading: ({ commit }) => commit("SET_LOADING", true),
+    hideLoading: ({ commit }) => commit("SET_LOADING", false),
+    showThanksAlert: ({ commit }) => commit("SET_THANKSALERT", true),
+    hideThanksAlert: ({ commit }) => commit("SET_THANKSALERT", false),
+    setOpenByPasscode: ({ commit }, payload) => commit("SET_OPENPASSCODE", payload)
   }
 })

@@ -21,8 +21,16 @@ export default {
     return {};
   },
   methods: {
-    ...mapActions(["setMenu", "setStep", "setData", "clearSelectedBox", "isOpen"]),
+    ...mapActions([
+      "setMenu",
+      "setStep",
+      "setData",
+      "clearSelectedBox",
+      "isOpen",
+      "setIsOpen"
+    ]),
     backToMenu: function() {
+      this.setIsOpen(false)
       this.clearSelectedBox();
       this.setMenu("hello");
       this.setStep("0");
