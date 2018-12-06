@@ -1,16 +1,16 @@
 <template>
-  <div>
-    <v-dialog v-model="facefail" width="500">
-      <v-card>
-        <v-card-title class="headline grey lighten-2 center" primary-title>No face deteced!!</v-card-title>
-
-        <v-card-text class="center">Please use passcode</v-card-text>
-      </v-card>
-    </v-dialog>
+  <div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <p>Please takeoff of the eyeware and stare at the screen</p>
+      <p>We will take the picture in {{time}}</p>
+    </div>
   </div>
 </template>
 
 <script>
+//var modal = document.getElementById("myModal")
+
 import { mapActions, mapGetters } from "vuex";
 import ble from "../ble/ble";
 import vuex from "../../const/vuex";
@@ -21,7 +21,9 @@ export default {
   name: "faceReg",
   data() {
     return {
-      facefail: false
+      facefail: false,
+      time: 10,
+      modal: null
     };
   },
   methods: {
@@ -143,10 +145,10 @@ export default {
     },
     startCameraAbove: function() {
       CameraPreview.startCamera({
-        x: 100,
-        y: 0,
-        width: screen.height*0.8,
-        height: screen.width*0.8,
+        x: 105,
+        y: 100,
+        width: screen.height * 0.8,
+        height: screen.width * 0.8,
         toBack: false,
         previewDrag: false,
         tapPhoto: false
@@ -196,10 +198,14 @@ export default {
       });
     },
     show: function() {
+      this.showInstructionModal()
       CameraPreview.show();
+      this.countdown();
     },
     hide: function() {
       CameraPreview.hide();
+      this.hideInstructionModal();
+      this.stopCamera();
     },
     openSuccess: function() {
       setTimeout(() => {
@@ -209,32 +215,63 @@ export default {
       }, 2000);
     },
     noFaceMatch: function() {
-      this.showFaceFail()
+      this.showFaceFail();
       setTimeout(() => {
         this.setOpenByPasscode(true);
-        this.hideFaceFail()
+        this.hideFaceFail();
         this.setMenu("phoneask");
         this.setStep("1");
       }, 3000);
+    },
+    countdown: function() {
+      let timer = setInterval(() => {
+        this.time -= 1;
+        if (this.time == 0) {
+          this.takePicture();
+          clearInterval(timer);
+        }
+      }, 1000);
+    },
+    showInstructionModal: function() {
+      this.modal.style.display = "block";
+    },
+    hideInstructionModal: function() {
+      this.modal.style.display = "none";
     }
   },
   computed: {
     ...mapGetters(vuex.getters)
   },
   mounted() {
+    this.modal = document.getElementById("myModal");
     this.show();
     this.startCameraAbove();
-    // setTimeout(() => {
-    //   this.takePicture();
-    // }, 5000);
   }
 };
 </script>
 
 <style scoped>
-.box {
-  width: 50vw;
-  height: 50vh;
-  border: 3px solid black
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: rgba(0, 0, 0, 0);
+  margin: 0% auto;
+  padding: 20px;
+  width: 80%;
+  text-align: center;
+  color: aliceblue;
+  font-size: 150%;
 }
 </style>

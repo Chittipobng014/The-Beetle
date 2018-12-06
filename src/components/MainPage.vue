@@ -11,7 +11,7 @@
             </transition>
             <transition name="fade">
               <div
-                v-if="isMenu == 'list' || isMenu == 'renting' || isMenu == 'faceReg' || isMenu == 'passcode' || isMenu == 'repasscode' || isMenu == 'receipt' || isMenu == 'checkpasscode'"
+                v-if="isMenu == 'list' || isMenu == 'renting' || isMenu == 'faceReg' || isMenu == 'passcode' || isMenu == 'repasscode' || isMenu == 'receipt' || isMenu == 'checkpasscode' || isMenu == 'phoneask'"
                 ref="boxview"
               >
                 <renting-step></renting-step>
