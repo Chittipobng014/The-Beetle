@@ -1,4 +1,10 @@
-<template></template>
+<template>
+  <div>
+    <re-passcode :show="reShow"/>
+    <wrong-passcode :show="wrong"/>
+    <lock-box :show="lock"/>
+  </div>
+</template>
 
 <script>
 import vuex from "../../const/vuex";
@@ -6,8 +12,21 @@ import configvars from "../../const/configvars";
 import { mapGetters, mapActions } from "vuex";
 import ble from "../ble/ble";
 import http from "../API/common";
+import { rePasscode, wrongPasscode, lockBox } from "../modal/index";
 
 export default {
+  components: {
+    rePasscode,
+    wrongPasscode,
+    lockBox
+  },
+  data() {
+    return {
+      reShow: false,
+      wrong: false,
+      lock: false
+    };
+  },
   computed: {
     ...mapGetters(vuex.getters)
   },
@@ -39,9 +58,17 @@ export default {
       try {
         this.showLoading();
         const boxid = this.getSelectedBox[0].id;
+
         const result = await http.passcodeVerify(this.passcode, boxid);
         if (result.data.result == false) {
-          console.log("passcode fail");
+          this.hideLoading();
+          this.wrong = true;
+          this.passcodeAttempInc();
+          setTimeout(() => {
+            this.wrong = false;
+            this.setMenu("passcode");
+            this.setStep("3");
+          }, 3800);
         } else {
           const peripheral = await ble.bleConnect(boxid);
           this.setPeripheral(peripheral);
@@ -95,10 +122,19 @@ export default {
         }, 5000);
       } catch (error) {}
     },
-    lockBox: async function() {
-      this.setMenu("hello");
-      this.setUpdateTransactions(true);
-      this.clearAttemp();
+    lockBox: async function(boxid) {
+      this.lock = true;
+      let lock = await http.lockBox(boxid);
+      console.log(lock);
+      setTimeout(async () => {
+        this.clearAttemp();
+        this.lock = false;
+        await this.selectOpenBoxes(false);
+        this.setOpenByPasscode(false);
+        this.setIsOpen(false);
+        this.setStep(1);
+        this.setMenu("hello");
+      }, 8000);
     }
   },
   watch: {
@@ -116,11 +152,17 @@ export default {
         this.connectToBox();
       } else if (menu == "receipt") {
         this.renting();
+      } else if (menu == "repasscode") {
+        this.reShow = true;
+        setTimeout(() => {
+          this.reShow = false;
+        }, 3800);
       }
     },
     passcodeAttemp: async function(updated) {
       if (updated == 3) {
-        this.lockBox();
+        const boxid = this.getSelectedBox[0].id;
+        this.lockBox(boxid);
       }
     },
     openBox: async function(state) {
@@ -132,8 +174,10 @@ export default {
         this.clearPeripheral();
       }
     },
-    openByPasscode: function(passcode) {
-    }
+    openByPasscode: function(passcode) {}
+  },
+  isOpen: function(state) {
+		console.log("isOpen", state)
   }
 };
 </script>

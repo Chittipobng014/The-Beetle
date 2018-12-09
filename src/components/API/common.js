@@ -45,5 +45,11 @@ export default {
     gettransactionByphone: async phonenumber => {
         const result = await axios.get(ConfigVars.API_URL() + 'transactionsbyphone/' + phonenumber)
         return result
+    },
+    lockBox: (boxid) => {
+        return new Promise(async (resolve, reject) => {
+            const lock = await axios.put(ConfigVars.API_URL() + 'boxes/lock/' + boxid)
+            resolve(lock.data)
+        })
     }
 }

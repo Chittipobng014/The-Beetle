@@ -30,7 +30,7 @@
               >
                 <div v-if="isMenu == 'hello'" class="navHeader h-center">Welcome</div>
                 <div
-                  v-if="isMenu != 'hello' && isOpen == false && openByPasscode == false"
+                  v-if="(isMenu != 'hello' && openByPasscode == false) && isOpen == false "
                   class="navHeader h-center"
                 >
                   <transition name="fade">
@@ -42,7 +42,7 @@
                     <div v-else-if="isStep == 6">Success</div>
                   </transition>
                 </div>
-                <div v-if="isOpen == true && openByPasscode == true" class="navHeader h-center">
+                <div v-if="isMenu != 'hello' && isOpen == true" class="navHeader h-center">
                   <transition name="fade">
                     <div v-if="isStep == 1">Input phone number</div>
                     <div v-else-if="isStep == 2">Select box</div>
@@ -51,7 +51,7 @@
                 </div>
                 <div v-if="isOpen == true && openByPasscode == false" class="navHeader h-center">
                   <transition name="fade">
-                    <div v-if="isStep == 1">Select box</div>
+                    <div v-if="isStep == 1">Face Recognition</div>
                     <div v-else-if="isStep == 2">Select box</div>
                     <div v-else-if="isStep == 3">Input passscode</div>
                   </transition>
@@ -69,7 +69,6 @@
     </v-layout>
     <loading-modal :show="loading"></loading-modal>
     <thank-you-modal :show="thanksAlert"></thank-you-modal>
-    <face-detect-fail :show="faceDetectFail"></face-detect-fail>
     <watcher></watcher>
   </v-app>
 </template>
@@ -87,7 +86,11 @@ import {
   PhoneAsk
 } from "./index.js";
 import { RentingStep, PreviewCam, PasscodePad } from "./UIComponents/index.js";
-import { loadingModal, thankYouModal, faceDetectFail } from "./modal/index";
+import {
+  loadingModal,
+  thankYouModal,
+  faceDetectFail,
+} from "./modal/index";
 import { sidebar } from "./sideBar/index";
 
 export default {
@@ -108,7 +111,7 @@ export default {
     loadingModal,
     thankYouModal,
     sidebar,
-    faceDetectFail
+    faceDetectFail,
   },
   data() {
     return {

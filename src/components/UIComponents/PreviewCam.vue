@@ -140,13 +140,19 @@ export default {
       console.log(`face id saved`);
       this.hideLoading();
       this.setFaceID(faceID);
+      
+      // this.setPasscode("000000");
+      // this.setRepasscode("000000");
+      // this.setMenu("checkpasscode");
+      // this.setStep("4");
+
       this.setMenu("passcode");
       this.setStep("4");
     },
     startCameraAbove: function() {
       CameraPreview.startCamera({
         x: 105,
-        y: 100,
+        y: 130,
         width: screen.height * 0.8,
         height: screen.width * 0.8,
         toBack: false,
@@ -268,10 +274,10 @@ export default {
 .modal-content {
   background-color: rgba(0, 0, 0, 0);
   margin: 0% auto;
-  padding: 20px;
-  width: 80%;
+  padding: 10px;
+  width: 95%;
   text-align: center;
   color: aliceblue;
-  font-size: 150%;
+  font-size: 250%;
 }
 </style>

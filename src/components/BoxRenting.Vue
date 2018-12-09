@@ -1,20 +1,41 @@
 <template>
-    <div>
-        <div class="center">
-            <div style="color: #3B5998; font-size: 72px">{{getSelectedBox[0].name}}</div>
-            <div style="font-size: 64px; margin-bottom: 25px">{{getSelectedBox[0].price}} Baht/hr</div>
-            <div style="font-size: 18px; color: #FF0000; margin-bottom: 35px">Input your to telephone number in case of forgot your box</div>
-            <div style="margin-top: 25px; margin-bottom: 10px; margin-left: 20%"><v-text-field
-                label="Solo"
-                placeholder="Telephone No."
-                solo
-                style="width: 95%; "
-                v-model="tel"
-          ></v-text-field></div>
-            <div style="margin-bottom: 25px"><v-btn @click="rent()" style="width: 330px; height: 100px; background-color: #3B5998; color: #FFFFFF; font-size: 28px">Rent a box</v-btn></div>
-            <div><v-btn @click="this.goback" style="width: 330px; height: 100px; font-size: 28px">Back to box select</v-btn></div>
-        </div>
+  <div>
+    <div class="center">
+      <div style="color: #3B5998; font-size: 72px">{{getSelectedBox[0].name}}</div>
+      <div style="font-size: 64px; margin-bottom: 25px">{{getSelectedBox[0].price}} Baht/hr</div>
+      <div
+        style="font-size: 18px; color: #FF0000; margin-bottom: 35px"
+      >Input your to telephone number in case of forgot your box</div>
+      <div style="margin-top: 25px; margin-bottom: 10px; margin-left: 20%">
+        <v-text-field
+          label="Solo"
+          placeholder="Telephone No."
+          solo
+          style="width: 95%; "
+          v-model="tel"
+        ></v-text-field>
+      </div>
+      <div style="margin-bottom: 25px">
+        <v-btn
+          @click="rent()"
+          style="width: 330px; height: 100px; background-color: #3B5998; color: #FFFFFF; font-size: 28px"
+        >Rent a box</v-btn>
+      </div>
+      <div>
+        <v-btn
+          @click="this.goback"
+          style="width: 330px; height: 100px; font-size: 28px"
+        >Back to box select</v-btn>
+      </div>
     </div>
+    <v-dialog v-model="show" width="500">
+      <v-card>
+        <v-card-title class="headline grey lighten-2 center" primary-title>Phone number invalid</v-card-title>
+
+        <v-card-text class="center">Phone number must be letter and must be not less than 10</v-card-text>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -25,21 +46,30 @@ export default {
   props: ["name", "id"],
   data() {
     return {
-      tel: ""
+      tel: "",
+      show: false
     };
   },
-  mounted() {
-    
-  },
+  mounted() {},
   methods: {
-    ...mapActions(["setMenu", "setStep", "setData", "clearSelectedBox", "setPeripheral", "setPhonenumber"]),
+    ...mapActions([
+      "setMenu",
+      "setStep",
+      "setData",
+      "clearSelectedBox",
+      "setPeripheral",
+      "setPhonenumber"
+    ]),
     rent: async function() {
-      if (this.tel.length > 0) {
-        this.setPhonenumber(this.tel)
+      if (this.tel.length >= 10) {
+        this.setPhonenumber(this.tel);
         this.setMenu("faceReg");
         this.setStep("3");
       } else {
-        
+        this.show = true
+        setTimeout(() => {
+          this.show = false
+        }, 3700);
       }
     },
     goback: function() {
@@ -49,7 +79,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["isMenu", "isStep", "getData", "getSelectedBox"]),
+    ...mapGetters(["isMenu", "isStep", "getData", "getSelectedBox"])
   }
 };
 </script>

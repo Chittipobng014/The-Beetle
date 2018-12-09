@@ -1,78 +1,74 @@
 <template>
-    <div class="container">
-        <div class="background">
-            <div class="center">
-                <v-layout row wrap>
-                    <v-flex v-if="code.length == 0" class="h-center" style="margin-bottom: 15px" xs12>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>                        
-                    </v-flex>
-                    <v-flex v-if="code.length == 1" class="h-center" style="margin-bottom: 15px" xs12>
-                        <div class="dashed">•</div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>                        
-                    </v-flex>
-                    <v-flex v-if="code.length == 2" class="h-center" style="margin-bottom: 15px" xs12>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>                        
-                    </v-flex>
-                    <v-flex v-if="code.length == 3" class="h-center" style="margin-bottom: 15px" xs12>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>                        
-                    </v-flex>
-                     <v-flex v-if="code.length == 4" class="h-center" style="margin-bottom: 15px" xs12>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed"></div>
-                        <div class="dashed"></div>                        
-                    </v-flex>
-                    <v-flex v-if="code.length == 5" class="h-center" style="margin-bottom: 15px" xs12>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed"></div>                        
-                    </v-flex>
-                    <v-flex v-if="code.length == 6" class="h-center" style="margin-bottom: 15px" xs12>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>
-                        <div class="dashed">•</div>                        
-                    </v-flex>
-                    <v-flex class="flex-padding circle" v-for="i in 9" :key="i" xs4>
-                        <div class="circleNo" @click="addCode(i)">
-                            {{i}}
-                        </div>
-                    </v-flex>
-                    <v-flex row class="circle">
-                        <div class="circleNo" @click="addCode(0)" >
-                            0
-                        </div>
-                    </v-flex>
-                </v-layout>
-            </div>
-        </div>
-    </div>    
+  <div class="container">
+    <div class="background">
+      <div class="center">
+        <v-layout row wrap>
+          <v-flex v-if="code.length == 0" class="h-center" style="margin-bottom: 15px" xs12>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+          </v-flex>
+          <v-flex v-if="code.length == 1" class="h-center" style="margin-bottom: 15px" xs12>
+            <div class="dashed">•</div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+          </v-flex>
+          <v-flex v-if="code.length == 2" class="h-center" style="margin-bottom: 15px" xs12>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+          </v-flex>
+          <v-flex v-if="code.length == 3" class="h-center" style="margin-bottom: 15px" xs12>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+          </v-flex>
+          <v-flex v-if="code.length == 4" class="h-center" style="margin-bottom: 15px" xs12>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed"></div>
+            <div class="dashed"></div>
+          </v-flex>
+          <v-flex v-if="code.length == 5" class="h-center" style="margin-bottom: 15px" xs12>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed"></div>
+          </v-flex>
+          <v-flex v-if="code.length == 6" class="h-center" style="margin-bottom: 15px" xs12>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+            <div class="dashed">•</div>
+          </v-flex>
+          <v-flex class="flex-padding circle" v-for="i in 9" :key="i" xs4>
+            <div class="circleNo ripple" @click="addCode(i)">{{i}}</div>
+          </v-flex>
+          <v-flex row class="circle">
+            <div class="circleNo ripple" @click="addCode(0)">0</div>
+          </v-flex>
+        </v-layout>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -82,11 +78,20 @@ export default {
   name: "passcodepad",
   data: function() {
     return {
-      code: []
+      code: [],
     };
   },
   methods: {
-    ...mapActions(["setMenu", "setStep", "setData", "setPasscode", "setRepasscode", "setIsOpen"]),
+    ...mapActions([
+      "setMenu",
+      "setStep",
+      "setData",
+      "setPasscode",
+      "setRepasscode",
+      "setIsOpen",
+      "showLoading",
+      "hideLoading"
+    ]),
     addCode: function(num) {
       this.code.push(num);
     }
@@ -95,21 +100,29 @@ export default {
     passcode: function(change) {
       if (this.code.length == 6) {
         if (this.isMenu == "passcode" && this.isOpen == false) {
-          console.log(`${this.isMenu}`)
+          this.showLoading();
+          console.log(`${this.isMenu}`);
           this.setPasscode(this.passcode);
           this.setMenu("repasscode");
-          this.setStep("5")
+          this.setStep("5");
           setTimeout(() => {
+            this.hideLoading();
             this.code = [];
           }, 500);
         } else if (this.isMenu == "repasscode" && this.isOpen == false) {
-          console.log(`${this.isMenu}`)
+          this.showLoading();
+          console.log(`${this.isMenu}`);
           this.setRepasscode(this.passcode);
           this.setMenu("checkpasscode");
           setTimeout(() => {
+            this.hideLoading();
             this.code = [];
           }, 500);
-        } else if(this.isMenu == "passcode" && this.isOpen == true && this.openByPasscode == true){
+        } else if (
+          this.isMenu == "passcode" &&
+          this.isOpen == true &&
+          this.openByPasscode == true
+        ) {
           this.setPasscode(this.passcode);
           this.setMenu("openByPasscode");
           setTimeout(() => {

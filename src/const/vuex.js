@@ -53,6 +53,8 @@ export default {
         "setSelectedBox",
         "setOpenByPasscode",
         "showFaceFail",
-        "hideFaceFail"
+        "hideFaceFail",
+        "setPasscode",
+        "setRepasscode"
       ]
 }

@@ -1,36 +1,40 @@
 <template>
-    <div>
-        <div class="center">
-            <div style="font-size: 64px; margin-bottom: 25px">Please Input your phone number</div>
-            <div style="font-size: 18px; color: #FF0000; margin-bottom: 35px">Input your to telephone number to verify</div>
-            <div style="margin-top: 25px; margin-bottom: 10px; margin-left: 20%"><v-text-field
-                label="Solo"
-                placeholder="Telephone No."
-                solo
-                style="width: 95%; "
-                v-model="phone"
-          ></v-text-field></div>
-            <div style="margin-bottom: 25px"><v-btn @click="rent()" style="width: 330px; height: 100px; background-color: #3B5998; color: #FFFFFF; font-size: 28px">Submit</v-btn></div>
-            <div><v-btn @click="this.goback" style="width: 330px; height: 100px; font-size: 28px">Back to menu</v-btn></div>
-        </div>
-        <v-dialog
-            v-model="fail"
-            width="500"
-            >
-                <v-card>
-                    <v-card-title
-                    class="headline grey lighten-2 center"
-                    primary-title
-                    >
-                        Sorry
-                    </v-card-title>
-
-                    <v-card-text class="center">
-                        You did not rent our box yet or phone number is wrong
-                    </v-card-text>
-                </v-card>
-      </v-dialog>
+  <div>
+    <div class="center">
+      <div style="font-size: 64px; margin-bottom: 25px">Please Input your phone number</div>
+      <div
+        style="font-size: 18px; color: #FF0000; margin-bottom: 35px"
+      >Input your to telephone number to verify</div>
+      <div style="margin-top: 25px; margin-bottom: 10px; margin-left: 20%">
+        <v-text-field
+          label="Solo"
+          placeholder="Telephone No."
+          solo
+          style="width: 95%; "
+          v-model="phone"
+        ></v-text-field>
+      </div>
+      <div style="margin-bottom: 25px">
+        <v-btn
+          @click="rent()"
+          style="width: 330px; height: 100px; background-color: #3B5998; color: #FFFFFF; font-size: 28px"
+        >Submit</v-btn>
+      </div>
+      <div>
+        <v-btn
+          @click="this.goback"
+          style="width: 330px; height: 100px; font-size: 28px"
+        >Back to menu</v-btn>
+      </div>
     </div>
+    <v-dialog v-model="fail" width="500">
+      <v-card>
+        <v-card-title class="headline grey lighten-2 center" primary-title>Sorry</v-card-title>
+
+        <v-card-text class="center">You did not rent our box yet or phone number is wrong</v-card-text>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -92,9 +96,10 @@ export default {
   },
   omputed: {
     ...mapGetters(vuex.getters)
-  },mounted() {
-      this.hideLoading()
   },
+  mounted() {
+    this.hideLoading();
+  }
 };
 </script>
 
