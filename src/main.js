@@ -7,10 +7,11 @@ import App from './App'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import { firestore, storage } from './firebase'
-import blelib from './components/ble/ble'
+import { microgear } from './components/customizes/Remote'
 
 Vue.prototype.$db = firestore;
 Vue.prototype.$storage = storage
+Vue.prototype.$remote = microgear
 
 Vue.use(VueAxios, axios)
 
@@ -26,7 +27,7 @@ const app = new Vue({
   methods: {
     bleScan: function () {
       ble.startScan([], async function (device) {
-      
+
       }, function (err) {
         console.log(err);
       });
